@@ -32,7 +32,7 @@
     margin: 0;
     background: var(--bg);
     color: var(--fg);
-    font: 17px/1.7 ui-serif, Georgia, "Times New Roman", serif;
+    font: 21px/1.62 ui-serif, Georgia, "Times New Roman", serif;
   }
   .wrap { max-width: 42rem; margin: 0 auto; padding: 0 1.25rem; }
 
@@ -474,6 +474,12 @@
     0%, 8%   { opacity: .12; }
     55%,100% { opacity: .85; }
   }
+  /* 21px is sized for reading at screen distance; on a phone it would make the line
+     too short to read comfortably. */
+  @media (max-width: 620px) {
+    body { font: 17px/1.62 ui-serif, Georgia, "Times New Roman", serif; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .grid50 .cells i { animation: none; opacity: .7; }
   }
