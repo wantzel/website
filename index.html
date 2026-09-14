@@ -1,0 +1,1152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wantzel — a language for the AI coding era</title>
+<meta name="description" content="Most languages were designed for an author who reads the code back. Increasingly, the author is a model. Wantzel is a compiler built for that: strict, dependency-free, and fast enough to compile on every iteration.">
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --fg: #1a1815;
+    --muted: #5e5850;
+    --rule: #e3ded5;
+    --code-bg: #f2efe9;
+    --accent: #8a4218;
+    --accent-soft: #f0e4da;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15140f;
+      --fg: #ecebe6;
+      --muted: #a09a8f;
+      --rule: #2e2b25;
+      --code-bg: #1e1c18;
+      --accent: #e0a473;
+      --accent-soft: #2a211a;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 17px/1.7 ui-serif, Georgia, "Times New Roman", serif;
+  }
+  .wrap { max-width: 42rem; margin: 0 auto; padding: 0 1.25rem; }
+
+  header { padding-block: 5rem 1rem; }
+  .mark {
+    font: 600 .78rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 1.6rem;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 6.4vw, 3.2rem);
+    line-height: 1.1;
+    letter-spacing: -.022em;
+    margin: 0 0 1.1rem;
+    font-weight: 600;
+  }
+  .lede {
+    font-size: clamp(1.12rem, 3vw, 1.26rem);
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .hook-cta {
+    font: 600 .95rem ui-sans-serif, system-ui, sans-serif;
+    margin: 1.8rem 0 0;
+  }
+  .hook-cta .sep { color: var(--rule); margin: 0 .3rem; }
+
+  /* ---- figuren -------------------------------------------------------- */
+  figure { margin: 2rem 0; }
+  figcaption {
+    font: .84rem/1.5 ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+    text-align: center;
+    margin-top: .8rem;
+  }
+  /* de stapelfiguur is hoog; zijn bijschrift heeft meer lucht nodig dan de rest */
+  .stack figcaption { margin-top: 1.5rem; }
+  figcaption b { color: var(--fg); font-weight: 600; }
+
+  .loop svg { display: block; width: 100%; height: auto; }
+  .loop .stroke-accent {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .loop .fill-accent { fill: var(--accent); }
+  .loop .box-soft { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+  .loop .box-accent { fill: var(--accent); }
+  .loop .nm {
+    font: 700 16px ui-sans-serif, system-ui, sans-serif;
+    fill: var(--fg);
+    letter-spacing: -.01em;
+  }
+  .loop .sm {
+    font: 600 12px ui-monospace, Menlo, monospace;
+    fill: var(--muted);
+  }
+  .loop .inv { fill: var(--bg); }
+  .loop .inv.sm { fill: var(--bg); opacity: .8; }
+  .loop .lbl {
+    font: 600 12px ui-sans-serif, system-ui, sans-serif;
+    fill: var(--muted);
+  }
+  .loop .lbl.faint { opacity: .75; font-style: italic; }
+  .loop .dash { stroke-dasharray: 2 7; stroke-width: 2.5; opacity: .55; }
+
+
+  /* de drie regels installatie, vlak onder de vouw */
+  .quick pre { margin: 0; }
+  .quick .cm { color: var(--muted); opacity: .8; }
+
+  /* een prompt of een lus, als voorbeeld */
+  .prompt pre { margin: 0; }
+  .prompt .cm { color: var(--accent); opacity: .85; }
+
+  /* twee uitkomsten, niets ertussen */
+  .two-out .out-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+  .two-out .out-box {
+    border: 2px solid var(--rule);
+    border-radius: 7px;
+    padding: .8rem .9rem;
+    text-align: center;
+  }
+  .two-out .out-box.ok { border-color: var(--accent); background: var(--accent-soft); }
+  .two-out .out-k {
+    font: 700 .95rem ui-monospace, Menlo, monospace;
+    color: var(--accent);
+    margin: 0 0 .3rem;
+  }
+  .two-out .out-box.err .out-k { color: var(--muted); }
+  .two-out .out-v {
+    font: .8rem/1.35 ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* de foutregel, uit elkaar getrokken */
+  .errline .el-msg {
+    font: 600 .86rem/1.6 ui-monospace, Menlo, monospace;
+    background: var(--code-bg);
+    border: 2px solid var(--rule);
+    border-radius: 7px;
+    padding: .8rem .9rem;
+    margin: 0 0 .7rem;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .errline .el-where { color: var(--accent); font-weight: 700; }
+  .errline .el-what { color: var(--fg); }
+  .errline .el-why { color: var(--muted); }
+  .errline .el-key {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .3rem 1.1rem;
+    font: .78rem ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+    margin: 0;
+  }
+  .errline .el-key i {
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 2px;
+    margin-right: .35rem;
+  }
+  .errline .k-where { background: var(--accent); }
+  .errline .k-what { background: var(--fg); }
+  .errline .k-why { background: var(--muted); opacity: .6; }
+  .errline .el-key b { color: var(--fg); font-weight: 600; }
+
+  /* bevroren taal: dezelfde bron, andere tijd of doel */
+  .frozen .fr-rows { display: grid; gap: 4px; }
+  .frozen .fr {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: .55rem .9rem;
+    border: 2px solid var(--rule);
+    border-radius: 7px;
+  }
+  .frozen .fr-h { font: 600 .85rem ui-sans-serif, system-ui, sans-serif; color: var(--muted); }
+  .frozen .fr-v {
+    font: 700 .85rem ui-monospace, Menlo, monospace;
+    color: var(--accent);
+  }
+
+  /* hoeveel er in een geheugen passen */
+  .fit .fit-rows { display: grid; gap: 4px; }
+  .fit .fit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: .62rem .9rem;
+    border: 2px solid var(--rule);
+    border-radius: 7px;
+    background: var(--bg);
+  }
+  .fit .fit-row.big {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .fit .fit-h {
+    font: 600 .86rem ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+  }
+  .fit .big .fit-h { color: var(--fg); }
+  .fit .fit-v {
+    font: 700 1rem ui-monospace, Menlo, monospace;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .fit .big .fit-v { font-size: 1.2rem; }
+
+  /* wat een extra agent kost */
+  .peragent .pa-rows {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+  .peragent .pa-h {
+    font: 600 .76rem/1 ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+    text-align: center;
+    margin: 0 0 .6rem;
+  }
+  .peragent .ours .pa-h { color: var(--accent); }
+  .peragent ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+  .peragent li {
+    font: 600 .78rem/1.3 ui-sans-serif, system-ui, sans-serif;
+    text-align: center;
+    padding: .5rem .4rem;
+    border: 2px solid var(--rule);
+    border-radius: 7px;
+    color: var(--muted);
+    background: var(--bg);
+  }
+  .peragent .ours li { border-color: var(--accent); color: var(--fg); background: var(--accent-soft); }
+  .peragent .ours li.shared {
+    background: var(--accent);
+    color: var(--bg);
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: .74rem;
+  }
+  .peragent .pa-n {
+    font: 600 .78rem ui-monospace, Menlo, monospace;
+    text-align: center;
+    color: var(--muted);
+    margin: .7rem 0 0;
+  }
+  .peragent .ours .pa-n { color: var(--accent); }
+
+  /* wat het kost -- bewust NIET in accentkleur: dit is geen verkooppunt */
+  .cost ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
+  .cost li {
+    font: .88rem/1.5 ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+    padding: .6rem .9rem;
+    border-left: 3px solid var(--rule);
+    background: var(--code-bg);
+  }
+  .cost li b { color: var(--fg); font-weight: 600; }
+
+  /* wanneer een fout aan het licht komt */
+  .when .track {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .6rem;
+    position: relative;
+    padding-top: 1.4rem;
+  }
+  .when .track::before {
+    content: "";
+    position: absolute;
+    left: 6%; right: 6%; top: 10px;
+    height: 2px;
+    background: var(--rule);
+  }
+  .when .tick { text-align: center; position: relative; }
+  .when .tick i {
+    display: block;
+    width: 16px; height: 16px;
+    margin: -1.4rem auto .7rem;
+    border-radius: 50%;
+    border: 2px solid var(--rule);
+    background: var(--bg);
+    position: relative;
+  }
+  .when .t1 i { border-color: var(--accent); background: var(--accent); }
+  .when .tick b {
+    display: block;
+    font: 600 .86rem ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+  }
+  .when .t1 b { color: var(--fg); }
+  .when .tick em {
+    display: block;
+    font: .76rem/1.4 ui-sans-serif, system-ui, sans-serif;
+    font-style: normal;
+    color: var(--muted);
+    opacity: .85;
+    margin-top: .2rem;
+  }
+  .when .track-line { text-align: center; margin: 1rem 0 0; }
+  .when .push {
+    font: 600 .78rem ui-sans-serif, system-ui, sans-serif;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+    border-radius: 999px;
+    padding: .3rem .9rem;
+    display: inline-block;
+  }
+
+  /* de stapel tegenover een binary */
+  .stack-pair { display: grid; gap: 0; }
+  .stack .pair-h {
+    font: 600 .74rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 1rem;
+    padding-bottom: .55rem;
+    border-bottom: 2px solid var(--rule);
+  }
+  /* de zin tussen de twee paren: het rustpunt dat de twee blokken scheidt */
+  .stack .pair-mid {
+    font: .92rem/1.5 ui-serif, Georgia, serif;
+    color: var(--muted);
+    text-align: center;
+    margin: 2.2rem 0 2.4rem;
+    padding: 0 1rem;
+  }
+  .stack .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: end;      /* de OS-laag ligt gelijk, dus de hoogte IS het argument */
+  }
+  /* twee kolommen: de gewone stapel tegenover de onze. Meer talen tonen we BINNEN de
+     linkerkolom (li.split), niet als extra kolom -- dat zei twee keer hetzelfde */
+  .stack .cols.two { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .stack .cols.two .layers li { font-size: .8rem; padding: .5rem .5rem; }
+  .stack .pair + .pair-mid { margin-top: 2.4rem; }
+  .stack .col.ours { position: relative; }
+  .stack .col.ours::before {
+    content: "";
+    position: absolute;
+    left: -.38rem; top: 0; bottom: 1.2rem;
+    width: 2px;
+    background: var(--accent);
+    opacity: .35;
+  }
+  .stack .col-h {
+    font: 600 .76rem/1 ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+    text-align: center;
+    margin: 0 0 .5rem;
+  }
+  .stack .layers { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+  .stack .layers li {
+    font: 600 .8rem/1.25 ui-sans-serif, system-ui, sans-serif;
+    text-align: center;
+    padding: .5rem .5rem;
+    border: 2px solid var(--rule);
+    border-radius: 7px;
+    color: var(--muted);
+    background: var(--bg);
+  }
+  .stack .layers li.mine {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--fg);
+  }
+  .stack .layers li.bin {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  /* EEN LAAG DIE IN TWEEEN VALT: een backend is in de praktijk vaak al twee talen, elk
+     met eigen code en framework, die daaronder dezelfde toolchain delen (Floris,
+     14-09-2026). De li zelf verliest zijn rand en wordt de houder van twee blokjes. */
+  .stack .layers li.split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;              /* dezelfde afstand als tussen de lagen eronder */
+    border: none;
+    background: none;
+  }
+  .stack .layers li.split span {
+    border: 2px solid var(--rule);
+    border-radius: 7px;
+    padding: .5rem .3rem;  /* zelfde verticale padding als .layers li, dus even hoog */
+    background: var(--bg);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .stack .layers li.split span.mine {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--fg);
+  }
+  /* De OS-rij moet over alle kolommen op EEN lijn liggen -- dat is het hele argument --
+     dus een regel onder een kolom mag niet in de uitlijning meetellen. Absoluut
+     plaatsen, en de figuur krijgt er onderaan ruimte voor. */
+  .stack .col { position: relative; }
+  .stack .col-n {
+    position: absolute;
+    left: 0; right: 0; top: 100%;
+    font: .72rem/1.35 ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+    text-align: center;
+    margin: .5rem 0 0;
+    opacity: .9;
+  }
+  .stack .pair:first-of-type { padding-bottom: 2.2rem; }
+
+  .stack .layers li.os {
+    border-style: dashed;
+    background: none;
+    opacity: .7;
+  }
+
+  /* pogingen tot een werkende build */
+  .attempts .row {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    padding: .7rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .attempts .row:first-of-type { border-top: 1px solid var(--rule); }
+  .attempts .r-h {
+    font: 600 .86rem ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+    min-width: 9.5rem;
+  }
+  .attempts .good .r-h { color: var(--fg); }
+  .attempts .dots { display: flex; gap: 6px; flex: 1; }
+  .attempts .dots i {
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    opacity: .4;
+  }
+  .attempts .dots i.hit { background: var(--accent); opacity: 1; }
+  .attempts .r-n {
+    font: 600 .86rem ui-monospace, Menlo, monospace;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .grid50 .cells {
+    display: grid;
+    grid-template-columns: repeat(25, 1fr);
+    gap: 4px;
+  }
+  .grid50 .cells i {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 2px;
+    background: var(--accent);
+    opacity: .28;
+    animation: fill 2.6s ease-out infinite;
+  }
+  @keyframes fill {
+    0%, 8%   { opacity: .12; }
+    55%,100% { opacity: .85; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .grid50 .cells i { animation: none; opacity: .7; }
+  }
+
+  h2 {
+    font: 600 .78rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 3.6rem 0 1.1rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--rule);
+  }
+  h3 {
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin: 2.4rem 0 .6rem;
+    letter-spacing: -.005em;
+  }
+  h3:first-of-type { margin-top: 1.6rem; }
+  p { margin: 0 0 1.1rem; }
+  strong { font-weight: 600; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  code { font-size: .86em; background: var(--code-bg); padding: .12em .38em; border-radius: 3px; }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 1.05rem 1.15rem;
+    overflow-x: auto;
+    font-size: .845rem;
+    line-height: 1.6;
+    margin: 0 0 1.1rem;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  .pull {
+    border-left: 2px solid var(--accent);
+    padding: .2rem 0 .2rem 1.3rem;
+    margin: 2rem 0;
+    font-size: clamp(1.12rem, 2.6vw, 1.28rem);
+    line-height: 1.5;
+    letter-spacing: -.01em;
+  }
+  .pull p:last-child { margin-bottom: 0; }
+
+  .chain {
+    margin: 1.8rem 0 1.4rem;
+    text-align: center;
+  }
+  .chain .stage {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+  .chain .you, .chain .out {
+    display: inline-block;
+    padding: .62rem 1.3rem;
+    border-radius: 999px;
+    font-size: .98rem;
+    font-weight: 600;
+    letter-spacing: -.008em;
+  }
+  .chain .you {
+    background: var(--accent-soft);
+    color: var(--fg);
+    border: 2px solid var(--accent);
+  }
+  .chain .you b {
+    font-weight: 700;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: .93em;
+    color: var(--accent);
+  }
+  .chain .out {
+    background: var(--accent);
+    color: var(--bg);
+    border: 2px solid var(--accent);
+  }
+  .chain .arrow {
+    margin: .55rem 0;
+    color: var(--accent);
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .chain .gen {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .45rem;
+    max-width: 31rem;
+    margin: 0 auto;
+  }
+  .chain .gen span {
+    font-size: .83rem;
+    font-weight: 600;
+    padding: .38rem .7rem;
+    border: 2px solid var(--rule);
+    border-radius: 7px;
+    color: var(--fg);
+    background: var(--bg);
+    white-space: nowrap;
+  }
+  .chain-note {
+    text-align: center;
+    color: var(--accent);
+    font: 600 .74rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    margin: 0 0 .7rem;
+  }
+
+  .facts { list-style: none; padding: 0; margin: 1.4rem 0 .9rem; }
+  .facts li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1.2rem;
+    padding: .62rem 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: .92rem;
+  }
+  .facts li:first-child { border-top: 1px solid var(--rule); }
+  .facts b { font-weight: 600; }
+  .facts .n {
+    font: 600 .95rem ui-monospace, Menlo, monospace;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+  }
+  .note { color: var(--muted); font-size: .93rem; }
+
+  .cta {
+    display: inline-block;
+    margin-top: .4rem;
+    font: 600 .95rem ui-sans-serif, system-ui, sans-serif;
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-block: 1.6rem 4rem;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: .92rem;
+  }
+  footer p { margin: 0 0 .4rem; }
+  .f-links { font-weight: 600; }
+  .f-links .sep { color: var(--rule); margin: 0 .3rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="mark">Wantzel</p>
+  <h1>A programming language for the code AI agents write.</h1>
+  <p class="lede">Strict, so wrong programs do not compile. Fast, so an agent can build on
+  every change — and so fifty of them can build at once. Zero dependencies: one static
+  binary, nothing to install, nothing to isolate.</p>
+
+  <p class="hook-cta"><a href="#try">Where to go next</a> <span class="sep">·</span>
+     <a href="https://github.com/wantzel/wantzel">Source on GitHub</a> <span class="sep">·</span>
+     <a href="https://github.com/wantzel/demos">Demos</a></p>
+</header>
+
+<figure class="loop" aria-label="An agent writes a program, the compiler answers in 27 milliseconds with a pass or one line naming the file, line and reason, and the agent corrects — repeating until it compiles.">
+  <svg viewBox="0 0 560 172" role="img" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ar" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M1 1 L11 6 L1 11 z" class="fill-accent"/>
+      </marker>
+    </defs>
+
+    <!-- twee blokken, gelijke maat, gelijke hoogte -->
+    <rect x="10" y="34" width="164" height="72" rx="12" class="box-soft"/>
+    <text x="92"  y="64"  class="nm" text-anchor="middle">your agent</text>
+    <text x="92"  y="85"  class="sm" text-anchor="middle">writes · corrects</text>
+
+    <rect x="386" y="34" width="164" height="72" rx="12" class="box-accent"/>
+    <text x="468" y="64"  class="nm inv" text-anchor="middle">wantzel</text>
+    <text x="468" y="85"  class="sm inv" text-anchor="middle">27 ms</text>
+
+    <!-- heen op 60, terug op 86: symmetrisch om het midden van de blokken (73) -->
+    <path d="M182 52 H378" class="stroke-accent" marker-end="url(#ar)"/>
+    <text x="280" y="42" class="lbl" text-anchor="middle">a program</text>
+
+    <path d="M378 94 H182" class="stroke-accent" marker-end="url(#ar)"/>
+    <text x="280" y="114" class="lbl" text-anchor="middle">pass — or file, line, reason</text>
+
+    <!-- de lus, netjes onder beide blokken door -->
+    <path d="M92 120 V142 H468 V120" class="stroke-accent dash"/>
+    <text x="280" y="160" class="lbl faint" text-anchor="middle">until it compiles</text>
+  </svg>
+  <figcaption>A compile costs milliseconds, so it belongs inside the loop — not after it.</figcaption>
+</figure>
+
+<main>
+
+<h2>Try it</h2>
+
+<figure class="quick" aria-label="Three commands: clone the repository, run build.sh which needs a C compiler exactly once, then compile and run a program.">
+  <pre><code>git clone https://github.com/wantzel/wantzel  <span class="cm"># get it</span>
+cd wantzel &amp;&amp; ./build.sh                      <span class="cm"># build, once</span>
+./bin/wantzel hello.wz hello &amp;&amp; ./hello       <span class="cm"># run</span></code></pre>
+  <figcaption>That is the whole installation. There is no second step.</figcaption>
+</figure>
+
+<h2>Pointing an agent at it</h2>
+
+<p>A model has not seen this language in training, so you hand it the specification. That
+is practical here because the specification is small: <strong>593 lines</strong> for the
+whole language, and another 463 on the pitfalls. Both fit in a prompt with room to spare.</p>
+
+<figure class="prompt" aria-label="An example prompt teaching a coding agent to work in this language: read the reference and the pitfalls first, keep a log of every compiler error and what fixed it, compile after every change, treat an error as the answer rather than something to work around, and stop when the suite is green.">
+  <pre><code><span class="cm"># teach it the language, then give it the job</span>
+Before writing any code, read docs/language.md — that is the
+whole language, and it is binding. Then read
+docs/writing-wantzel.md for the mistakes people make first.
+
+Then: build an MCP server exposing a `search` tool over a
+directory of files.
+
+How to work:
+  - compile after every change, not at the end.
+    ./bin/wantzel src/main.wz out takes about 20 ms.
+  - an error is the answer, not an obstacle. It names the file,
+    the line and the reason. Fix that cause. Do not work around
+    it and do not guess a second approach.
+  - hit something the docs do not cover? Write down what you
+    tried and what the compiler said, and ask. Do not invent
+    syntax — if it were valid, the reference would say so.
+  - done means: it compiles, it runs, and the tests pass.</code></pre>
+  <figcaption>No project file, no scaffold, no dependency step — the reference and the
+  compiler are the whole context. The rule that matters most is the third one: a strict
+  compiler only pays off if its refusals are treated as information.</figcaption>
+</figure>
+
+<p>And because a workspace is just a directory, fanning out is a loop rather than a
+provisioning problem:</p>
+
+<figure class="prompt" aria-label="A shell loop that creates fifty git worktrees and starts an agent in each one, each with its own copy of the source and all sharing the same compiler binary.">
+  <pre><code><span class="cm"># fifty independent attempts, one shared toolchain</span>
+for i in $(seq 1 50); do
+  git worktree add ../try-$i -b try-$i
+  your-agent --cwd ../try-$i --prompt "$TASK" &amp;
+done; wait</code></pre>
+  <figcaption>Nothing is installed per worktree. They share one 499&nbsp;kB compiler, and
+  fifty compiling at once peaked under 100&nbsp;MB — so the question is which attempt to
+  keep, not whether the machine can take it.</figcaption>
+</figure>
+
+<h2>The name is the idea</h2>
+
+<p>In 1837 Pierre Wantzel proved what <em>cannot</em> be done. Trisecting an angle with
+compass and straightedge, doubling a cube — people had tried for centuries, and he showed
+it is impossible. Not "not managed yet". Impossible.</p>
+
+<p>That is what a compiler should do: say what cannot work, before you find out the hard
+way. It sounds like a limitation and it is the opposite. A proof that something is
+impossible is liberating — you stop looking, and the time you would have spent on a dead
+end goes to the road that does exist.</p>
+
+<div class="pull">
+  <p>An agent that does not know something is impossible keeps searching. It writes
+  something plausible, gets a vague error, tries a variation, builds a workaround — and
+  sometimes produces something that runs, until one day it does not.</p>
+</div>
+
+<figure class="when" aria-label="Feedback arrives at three distances: in seconds while compiling, in minutes from a test run, or much later from something that is already running. The sooner an answer comes back, the less an agent drifts before it gets one.">
+  <div class="track">
+    <span class="tick t1"><i></i><b>compiling</b><em>seconds, with a line number</em></span>
+    <span class="tick t2"><i></i><b>your tests</b><em>minutes, and worth every one</em></span>
+    <span class="tick t3"><i></i><b>already running</b><em>later, and further from the cause</em></span>
+  </div>
+  <p class="track-line"><span class="push">the sooner the answer, the less it drifts</span></p>
+  <figcaption>Tests earn their place — this is not an argument against them. It is that an
+  agent iterates as fast as its slowest answer, so the more the compiler settles in
+  seconds, the fewer rounds spent guessing.</figcaption>
+</figure>
+
+<h2>Why</h2>
+
+<p>You are shipping code you did not write and have only partly read. Nobody can tell by eye
+whether a conversion is safe or an index can run past the end — and plausible code is
+exactly what a generator is good at producing.</p>
+
+<p>So the compiler has to hold what a careful author used to hold. That changes the
+question a language should be answering. Not <em>what makes this pleasant to write?</em>
+but <em>what makes a wrong program impossible to compile, and a right one fast to arrive
+at?</em></p>
+
+<div class="pull">
+  <p>A compact, fast, strict language, fit to be used in iterations when agents write the
+  code.</p>
+</div>
+
+<p>Every decision in Wantzel is weighed against that sentence, and each word of it settles
+something. <strong>Compact</strong>, so the whole specification can be read in one sitting
+rather than consuming an agent's attention. <strong>Fast</strong>, so a loop can afford to
+compile on every single change — which is what makes iterating possible at all.
+<strong>Strict</strong>, because what the compiler refuses is what nobody has to review.
+And <strong>in iterations</strong>, because the unit of work is not a program written once,
+but a cycle run many times, where every signal is read by a machine before a human sees
+it.</p>
+
+<h2>What that buys you</h2>
+
+<h3>Run a thousand agents on the machine you already have</h3>
+
+<p>Fifty agents each compiling the entire compiler finish in <strong>352&nbsp;ms</strong>
+wall clock and peak together under <strong>100&nbsp;MB</strong>. Not fifty containers,
+fifty virtual environments or fifty package caches — fifty processes. Your fleet size stops
+being a budget question about RAM and disk, and a compile becomes cheap enough to put
+<em>inside</em> the loop rather than at the end of it.</p>
+
+<figure class="grid50" aria-label="Fifty parallel compiles, all finishing within 352 milliseconds and all producing identical output.">
+  <div class="cells"><i style="animation-delay:0.16s"></i><i style="animation-delay:0.08s"></i><i style="animation-delay:0.33s"></i><i style="animation-delay:0.04s"></i><i style="animation-delay:0.27s"></i><i style="animation-delay:0.18s"></i><i style="animation-delay:0.03s"></i><i style="animation-delay:0.25s"></i><i style="animation-delay:0.02s"></i><i style="animation-delay:0.22s"></i><i style="animation-delay:0.03s"></i><i style="animation-delay:0.05s"></i><i style="animation-delay:0.21s"></i><i style="animation-delay:0.41s"></i><i style="animation-delay:0.06s"></i><i style="animation-delay:0.11s"></i><i style="animation-delay:0.31s"></i><i style="animation-delay:0.47s"></i><i style="animation-delay:0.29s"></i><i style="animation-delay:0.20s"></i><i style="animation-delay:0.49s"></i><i style="animation-delay:0.02s"></i><i style="animation-delay:0.43s"></i><i style="animation-delay:0.14s"></i><i style="animation-delay:0.07s"></i><i style="animation-delay:0.06s"></i><i style="animation-delay:0.15s"></i><i style="animation-delay:0.41s"></i><i style="animation-delay:0.09s"></i><i style="animation-delay:0.29s"></i><i style="animation-delay:0.32s"></i><i style="animation-delay:0.19s"></i><i style="animation-delay:0.27s"></i><i style="animation-delay:0.03s"></i><i style="animation-delay:0.03s"></i><i style="animation-delay:0.10s"></i><i style="animation-delay:0.34s"></i><i style="animation-delay:0.21s"></i><i style="animation-delay:0.16s"></i><i style="animation-delay:0.29s"></i><i style="animation-delay:0.23s"></i><i style="animation-delay:0.15s"></i><i style="animation-delay:0.40s"></i><i style="animation-delay:0.35s"></i><i style="animation-delay:0.12s"></i><i style="animation-delay:0.29s"></i><i style="animation-delay:0.26s"></i><i style="animation-delay:0.44s"></i><i style="animation-delay:0.36s"></i><i style="animation-delay:0.14s"></i></div>
+  <figcaption><b>50 parallel compiles</b> · 352 ms wall clock · &lt; 100 MB total · every output identical</figcaption>
+</figure>
+
+<p>All fifty produced byte-identical binaries. Under that load, that is the other half of
+the story: when agents build the same source, any difference between their outputs is a
+real difference and never a race.</p>
+
+<figure class="fit" aria-label="What one compile of the compiler itself costs: 6,380 lines in 27 milliseconds, about 236,000 lines per second, peaking at 1.9 megabytes of memory, from a 499 kilobyte toolchain on disk that every agent shares. Five hundred of those fit in a gigabyte of memory.">
+  <div class="fit-rows">
+    <div class="fit-row"><span class="fit-h">source compiled</span><span class="fit-v">6,380 lines</span></div>
+    <div class="fit-row"><span class="fit-h">wall clock</span><span class="fit-v">27 ms</span></div>
+    <div class="fit-row"><span class="fit-h">peak memory</span><span class="fit-v">1.9 MB</span></div>
+    <div class="fit-row"><span class="fit-h">toolchain on disk, shared by all</span><span class="fit-v">499 kB</span></div>
+    <div class="fit-row"><span class="fit-h">installed per agent</span><span class="fit-v">nothing</span></div>
+    <div class="fit-row big"><span class="fit-h">so one gigabyte of memory holds</span><span class="fit-v">~500 at once</span></div>
+  </div>
+</figure>
+
+<h3>Spawning a subagent costs almost nothing</h3>
+
+<p>The reason agents are usually rationed is not the model — it is what each one drags
+along. A worktree, a package install, a virtual environment, a container to keep it from
+touching the others. Every extra agent is a minute of setup and a few hundred megabytes,
+so you think twice before starting one.</p>
+
+<p>Here a workspace is a directory with source files in it, and the toolchain is a single
+499&nbsp;kB binary that every agent shares. Nothing to install per agent, nothing to isolate
+them from each other, nothing to tear down afterwards. Fifty compiling at once peaked under
+100&nbsp;MB together — about two megabytes each.</p>
+
+<figure class="peragent" aria-label="What one more agent costs: usually a package install, a virtual environment and a container image, taking minutes to set up and hundreds of megabytes. With Wantzel it is a directory of source files and a shared 499 kilobyte compiler, taking about two megabytes and no setup.">
+  <div class="pa-rows">
+    <div class="pa">
+      <p class="pa-h">one more agent, usually</p>
+      <ul>
+        <li>a checkout or worktree</li>
+        <li>a package install</li>
+        <li>a virtual environment</li>
+        <li>a container to keep it apart</li>
+      </ul>
+      <p class="pa-n">minutes · hundreds of MB</p>
+    </div>
+    <div class="pa ours">
+      <p class="pa-h">one more agent, here</p>
+      <ul>
+        <li>a directory of source files</li>
+        <li class="shared">the same 499 kB compiler</li>
+      </ul>
+      <p class="pa-n">no setup · ~2 MB</p>
+    </div>
+  </div>
+  <figcaption>Nothing is installed per agent, so there is nothing to isolate them from
+  and nothing to tear down.</figcaption>
+</figure>
+
+<p>That changes what you are willing to try. Spawning ten agents to attack a problem from
+ten angles stops being a decision about infrastructure and becomes a decision about whether
+the idea is worth ten attempts. Throwing nine of them away costs nothing, and being able to
+throw work away cheaply is most of what makes the approach work.</p>
+
+<h3>Fewer tokens burned getting to a build that works</h3>
+
+<p>Every failed compile is a round trip: the error goes back into the context window, the
+model rewrites, you pay for both. So the cost of a coding agent is not really the code it
+writes — it is the number of attempts, and how much each attempt has to read.</p>
+
+<p>Two things shorten that. The specification is small enough that consulting it does not
+eat the context. And every message names the file, the line, and the actual problem in
+plain words, so an attempt aims at the real cause instead of guessing near it.</p>
+
+<figure class="attempts" aria-label="A vague error costs several attempts, because each one guesses at the cause. An error naming the file, the line and the reason is normally answered on the next try: one attempt to be told exactly what is wrong, one to fix it.">
+  <div class="row">
+    <span class="r-h">vague error</span>
+    <span class="dots"><i></i><i></i><i></i><i></i><i class="hit"></i></span>
+    <span class="r-n">5 attempts</span>
+  </div>
+  <div class="row good">
+    <span class="r-h">file · line · reason</span>
+    <span class="dots"><i></i><i class="hit"></i></span>
+    <span class="r-n">2 attempts</span>
+  </div>
+  <figcaption>One attempt to be told exactly what is wrong, one to fix it. Every round trip
+  is paid for twice — once to send the error in, once to get the rewrite back.</figcaption>
+</figure>
+
+<h3>Nothing to isolate, because nothing is shared</h3>
+
+<p>No package manager — so there is no mechanism by which a dependency could arrive. No
+runtime on the target, no container to describe that runtime, no lockfile, no virtual
+environment keeping packages from destroying each other.</p>
+
+<figure class="stack" aria-label="To build, a project usually needs a framework, a package manager with a lockfile, a build toolchain and a virtual environment under your code — and more than one language means another set of those. Wantzel needs one compiler. To run, it needs a language runtime, shared libraries and a container image, where Wantzel needs one binary on the kernel.">
+  <div class="stack-pair">
+
+    <div class="pair">
+      <p class="pair-h">at build time</p>
+      <div class="cols two">
+        <div class="col">
+          <p class="col-h">usually</p>
+          <ul class="layers">
+            <li class="split"><span class="mine">your code</span><span class="mine">your code</span></li>
+            <li class="split"><span>framework</span><span>framework</span></li>
+            <li>package manager · lockfile</li>
+            <li>build toolchain</li>
+            <li>virtual environment</li>
+            <li class="os">operating system</li>
+          </ul>
+          <p class="col-n">and usually more than one language, each with its own</p>
+        </div>
+        <div class="col ours">
+          <p class="col-h">wantzel</p>
+          <ul class="layers">
+            <li class="mine">your code</li>
+            <li class="bin">wantzel</li>
+            <li class="os">operating system</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <p class="pair-mid">And then again on the machine you ship to.</p>
+
+    <div class="pair">
+      <p class="pair-h">at run time</p>
+      <div class="cols two">
+        <div class="col">
+          <p class="col-h">usually</p>
+          <ul class="layers">
+            <li class="mine">your code</li>
+            <li>language runtime · GC</li>
+            <li>shared libraries</li>
+            <li>container image</li>
+            <li class="os">operating system</li>
+          </ul>
+        </div>
+        <div class="col ours">
+          <p class="col-h">wantzel</p>
+          <ul class="layers">
+            <li class="bin">your binary</li>
+            <li class="os">operating system</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <figcaption>Every layer is sensible on its own. Together they have to stand up before one
+  line of yours does — and again on the machine you ship to. Most projects carry more than
+  one of these, because most projects are more than one language.</figcaption>
+</figure>
+
+<p>That matters more for agents than for people. The usual reason to sandbox an agent is
+that its build can reach out and change the machine. Here a build reads source files and
+writes one file. Deploying is copying that file.</p>
+
+<h3>Silence means correct</h3>
+
+<p>No warnings — only errors. A warning is an error with a grey zone around it, and grey
+zones do not survive contact with time: they pile up, get suppressed, and eventually
+nobody can tell whether a clean run means clean code or silenced noise.</p>
+
+<figure class="two-out" aria-label="There are two outcomes and nothing between them: exit zero, meaning correct as far as the compiler can tell, or one line on standard error naming the file, the line and the problem.">
+  <div class="out-pair">
+    <div class="out-box ok">
+      <p class="out-k">exit 0</p>
+      <p class="out-v">correct, as far as the compiler can tell</p>
+    </div>
+    <div class="out-box err">
+      <p class="out-k">one line on stderr</p>
+      <p class="out-v">file, line, and what is wrong</p>
+    </div>
+  </div>
+  <figcaption>Nothing in between — no warning, no remark, no "compiles with notes".</figcaption>
+</figure>
+
+<p>Exit&nbsp;0 has to be trustworthy on its own, because something machine-read acts on it
+without weighing tone or context. You can build a loop on that. You cannot build one on
+"it worked, but there were nine remarks".</p>
+
+<h3>An error names your source, not the compiler</h3>
+
+<p>A program that was simply too large once failed with an error pointing deep inside the
+compiler — every word of it true, and all of it aimed the wrong way. A human shrugs and
+looks elsewhere. A generator takes it at face value and starts rewriting code that was
+never the problem. Now the message names the file, the line, and the limit that was hit.</p>
+
+<figure class="errline" aria-label="An error message in three parts: the file and line it happened in, what went wrong, and what was expected against what was found.">
+  <p class="el-msg"><span class="el-where">tools.wz:212:</span> <span class="el-what">type error in assignment:</span> <span class="el-why">expected int, found bool</span></p>
+  <p class="el-key">
+    <span><i class="k-where"></i>where in <b>your</b> source</span>
+    <span><i class="k-what"></i>what went wrong</span>
+    <span><i class="k-why"></i>what it expected</span>
+  </p>
+</figure>
+
+<p>Naming the input is not politeness. It is the difference between a loop that converges
+and one that thrashes.</p>
+
+<h3>Code written last month still means what it meant</h3>
+
+<p>The language is frozen, and a change that alters what existing working code does needs a
+far stronger argument than one that merely refuses something new. Code a generator produced
+last week does not get reread when the rules shift underneath it. It simply starts being
+wrong, quietly, somewhere nobody is looking.</p>
+
+<figure class="frozen" aria-label="The same program compiled last month and today gives the same result, because the language did not move underneath it. Linux and Windows are kept identical for the same reason.">
+  <div class="fr-rows">
+    <div class="fr"><span class="fr-h">written last month</span><span class="fr-v ok">compiles</span></div>
+    <div class="fr"><span class="fr-h">the same source today</span><span class="fr-v ok">compiles</span></div>
+    <div class="fr"><span class="fr-h">…on Windows instead</span><span class="fr-v ok">compiles</span></div>
+  </div>
+  <figcaption>The language is frozen and both targets are kept identical, so none of these
+  is a different question.</figcaption>
+</figure>
+
+<p>For the same reason Linux and Windows are kept as identical as they can be made. A
+person learns "on Windows this one is different" once and remembers. A generator has no
+such memory, and will write the Linux shape every time.</p>
+
+<h2>The part people remember</h2>
+
+<p>Describe your data with a <code>schema</code> block and your operations with a
+<code>tools</code> block. The compiler generates the protocol layer — and rejects an
+invalid interface before anything runs.</p>
+
+<div class="chain">
+  <p class="stage you">you write <b>schema</b> and <b>tools</b></p>
+  <p class="arrow" aria-hidden="true">↓</p>
+  <p class="chain-note">the compiler writes all of this</p>
+  <p class="stage gen">
+    <span>JSON parser</span><span>writer</span><span>JSON Schema</span><span>MCP tool table</span><span>argument checks</span><span>dispatch</span><span>REST routes</span><span>OpenAPI</span>
+  </p>
+  <p class="arrow" aria-hidden="true">↓</p>
+  <p class="stage out">one static binary · no runtime</p>
+</div>
+
+<p>There is no layer left to misconfigure. A field that is not in the schema is not a
+run-time validation error — it is a program that does not compile. If you want an agent to
+call your backend, that is the whole of it.</p>
+
+<h2>What it is</h2>
+
+<p>A small, strictly typed, procedural language whose compiler is written in itself. It
+emits static x86-64 executables for Linux and Windows: no assembler, no linker, no C
+library, nothing to install. The compiler is one file and carries its own standard
+library, so the download is the entire toolchain.</p>
+
+<pre><code>program hello;
+include "io.wz";
+begin
+  io.puts(STDOUT, "hello, world\n");
+end.</code></pre>
+
+<ul class="facts">
+  <li><span><b>50 agents compiling at once</b> — wall clock until the last one finished</span> <span class="n">352 ms</span></li>
+  <li><span>…their peak memory, all fifty together</span> <span class="n">&lt; 100 MB</span></li>
+  <li><span>Compiling the compiler with itself (6,380 lines)</span> <span class="n">27 ms</span></li>
+  <li><span>…and a 97,000-line program</span> <span class="n">2.2 s</span></li>
+  <li><span>Peak memory while compiling</span> <span class="n">1.9 MB</span></li>
+  <li><span>The compiler binary</span> <span class="n">499 kB</span></li>
+  <li><span>Full bootstrap from C to a fixed point</span> <span class="n">1 s</span></li>
+  <li><span>External dependencies</span> <span class="n">0</span></li>
+</ul>
+
+<p class="note">Measured on one machine, with the method in the repository — so you can
+check the numbers rather than believe them. Compile time is not linear in the size of the
+source: the rate holds at the scale the compiler itself is, and falls off well before a
+hundred thousand lines. That is a known defect, not a property we are defending.</p>
+
+<h2>Two languages shaped this one</h2>
+
+<p><strong>Turbo Pascal, for what a short loop feels like.</strong> It compiled in the blink
+of an eye — you pressed a key and your program ran — and that speed made something possible
+that has been rare since: you iterated in <em>thought</em> rather than in waiting time. You
+simply tried things, because trying was free. One environment, one step, strict enough to
+catch your mistakes, complete enough to build a whole project with.</p>
+
+<p>Then everything got slower, which is worth asking about, because computers got a
+thousand times faster in the meantime. The gain went into layers. The speed here is not
+nostalgia; it is a claim that the old loop is still available if you decline them. The
+syntax comes from the same place for a plainer reason: Pascal reads almost like
+pseudocode, and there is little to learn before you can read the standard library.</p>
+
+<p><strong>Go, for what a deployable artifact should be.</strong> A static binary with no
+runtime to install, fast builds, a standard library that can serve HTTP on its own rather
+than through a framework, and a deliberately small language that resists clever
+constructions. Wantzel shares all four and pushes two further, at a price Go had good
+reason not to pay: dependencies are not merely few but structurally impossible, and the
+contract for an API is a language construct rather than a generator you run as an extra
+build step. The price is an ecosystem of one.</p>
+
+<p>Neither is a model to copy. What is taken from Turbo Pascal is the loop; what is taken
+from Go is the shape of the thing you ship.</p>
+
+<p>And it is worth saying plainly: none of this makes it unpleasant to write by hand. The
+same properties are what made programming feel light before the stacks grew — you press a
+key and it runs, the error says exactly what is wrong and where, there is one way to
+express the thing, and there is no environment to set up before you start. This is not an
+AI-only language with humans tolerated. It is a small, fast, strict language that happens
+to suit a generator for exactly the reasons it suits a person.</p>
+
+<h2>Where this is the wrong tool</h2>
+
+<p>The question is not whether this is right for everyone — it is whether it fits a
+given job. What you give up is not little:</p>
+
+<figure class="cost" aria-label="The costs of choosing Wantzel: no ecosystem, no debugger or profiler, almost nobody knows the language, no proven memory safety, and every compiler bug becomes yours to fix.">
+  <ul>
+    <li><b>No ecosystem.</b> Every library you need, you write.</li>
+    <li><b>No debugger, no profiler, no IDE support.</b> Printf and tests.</li>
+    <li><b>Almost nobody knows this language.</b> The bus factor is very small.</li>
+    <li><b>No proven memory safety.</b> No pointers and a test suite — not years of work on
+        a type system that proves it.</li>
+    <li><b>Every bug in the compiler is your bug.</b> Elsewhere it is someone else's issue
+        to fix; here it is a ticket with your name on it.</li>
+  </ul>
+</figure>
+
+<p>That is a defensible price for a program that has to keep working for years on a machine
+nobody maintains, where the number of moving parts matters more than how fast you write the
+first version. For a great deal of other work it is a bad price, and the honest answer is
+to use something else.</p>
+
+<p>And the language is pre-1.0: anything may still change — the language, the library, the
+command line. The compiler compiles itself, ships a standard library and runs real
+programs, but the claim that a language designed for generated code actually
+<em>helps</em> generated code is a research question, not a slogan. It is being measured.
+When there are numbers they will be here, including the unflattering ones.</p>
+
+<h2 id="try">Where to go next</h2>
+
+<p>The repository holds the language reference, the reasoning behind the design, and worked
+examples — including an MCP server and an HTTP server. Larger applications are being built
+in the open at <a href="https://github.com/wantzel/demos">wantzel/demos</a>: a task server
+an agent can drive over MCP, and a log tool that searches tens of gigabytes with a
+half-megabyte binary.</p>
+
+<p><a class="cta" href="https://github.com/wantzel/wantzel">Read the source</a></p>
+
+</main>
+
+<footer>
+  <p class="f-links">
+    <a href="https://github.com/wantzel/wantzel">github.com/wantzel/wantzel</a>
+    <span class="sep">·</span>
+    <a href="https://github.com/wantzel/demos">demos</a>
+    <span class="sep">·</span>
+    <a href="mailto:floris@wantzel.com">floris@wantzel.com</a>
+  </p>
+  <p>Questions, or something you built with it — I read everything.</p>
+  <p>MIT licensed.</p>
+</footer>
+
+</div>
+</body>
+</html>
