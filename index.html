@@ -663,7 +663,7 @@
 
     <rect x="386" y="34" width="164" height="72" rx="12" class="box-accent"/>
     <text x="468" y="64"  class="nm inv" text-anchor="middle">wantzel</text>
-    <text x="468" y="85"  class="sm inv" text-anchor="middle">27 ms</text>
+    <text x="468" y="85"  class="sm inv" text-anchor="middle">11 ms</text>
 
     <!-- heen op 60, terug op 86: symmetrisch om het midden van de blokken (73) -->
     <path d="M182 52 H378" class="stroke-accent" marker-end="url(#ar)"/>
@@ -729,7 +729,7 @@ for i in $(seq 1 50); do
   git worktree add ../try-$i -b try-$i
   your-agent --cwd ../try-$i --prompt "$TASK" &amp;
 done; wait</code></pre>
-  <figcaption>Nothing is installed per worktree. They share one 499&nbsp;kB compiler, and
+  <figcaption>Nothing is installed per worktree. They share one 514&nbsp;kB compiler, and
   fifty compiling at once peaked under 100&nbsp;MB — so the question is which attempt to
   keep, not whether the machine can take it.</figcaption>
 </figure>
@@ -807,14 +807,14 @@ being a budget question about RAM and disk, and a compile becomes cheap enough t
 the story: when agents build the same source, any difference between their outputs is a
 real difference and never a race.</p>
 
-<figure class="fit" aria-label="What one compile of the compiler itself costs: 6,380 lines in 27 milliseconds, about 236,000 lines per second, peaking at 1.9 megabytes of memory, from a 499 kilobyte toolchain on disk that every agent shares. Five hundred of those fit in a gigabyte of memory.">
+<figure class="fit" aria-label="What one compile of the compiler itself costs: 6,536 lines in 11 milliseconds, about 594,000 lines per second, peaking at 2.9 megabytes of memory, from a 514 kilobyte toolchain on disk that every agent shares. About three hundred and forty of those fit in a gigabyte of memory.">
   <div class="fit-rows">
-    <div class="fit-row"><span class="fit-h">source compiled</span><span class="fit-v">6,380 lines</span></div>
-    <div class="fit-row"><span class="fit-h">wall clock</span><span class="fit-v">27 ms</span></div>
-    <div class="fit-row"><span class="fit-h">peak memory</span><span class="fit-v">1.9 MB</span></div>
-    <div class="fit-row"><span class="fit-h">toolchain on disk, shared by all</span><span class="fit-v">499 kB</span></div>
+    <div class="fit-row"><span class="fit-h">source compiled</span><span class="fit-v">6,536 lines</span></div>
+    <div class="fit-row"><span class="fit-h">wall clock</span><span class="fit-v">11 ms</span></div>
+    <div class="fit-row"><span class="fit-h">peak memory</span><span class="fit-v">2.9 MB</span></div>
+    <div class="fit-row"><span class="fit-h">toolchain on disk, shared by all</span><span class="fit-v">514 kB</span></div>
     <div class="fit-row"><span class="fit-h">installed per agent</span><span class="fit-v">nothing</span></div>
-    <div class="fit-row big"><span class="fit-h">so one gigabyte of memory holds</span><span class="fit-v">~500 at once</span></div>
+    <div class="fit-row big"><span class="fit-h">so one gigabyte of memory holds</span><span class="fit-v">~340 at once</span></div>
   </div>
 </figure>
 
@@ -826,11 +826,11 @@ touching the others. Every extra agent is a minute of setup and a few hundred me
 so you think twice before starting one.</p>
 
 <p>Here a workspace is a directory with source files in it, and the toolchain is a single
-499&nbsp;kB binary that every agent shares. Nothing to install per agent, nothing to isolate
+514&nbsp;kB binary that every agent shares. Nothing to install per agent, nothing to isolate
 them from each other, nothing to tear down afterwards. Fifty compiling at once peaked under
 100&nbsp;MB together — about two megabytes each.</p>
 
-<figure class="peragent" aria-label="What one more agent costs: usually a package install, a virtual environment and a container image, taking minutes to set up and hundreds of megabytes. With Wantzel it is a directory of source files and a shared 499 kilobyte compiler, taking about two megabytes and no setup.">
+<figure class="peragent" aria-label="What one more agent costs: usually a package install, a virtual environment and a container image, taking minutes to set up and hundreds of megabytes. With Wantzel it is a directory of source files and a shared 514 kilobyte compiler, taking about two megabytes and no setup.">
   <div class="pa-rows">
     <div class="pa">
       <p class="pa-h">one more agent, usually</p>
@@ -846,7 +846,7 @@ them from each other, nothing to tear down afterwards. Fifty compiling at once p
       <p class="pa-h">one more agent, here</p>
       <ul>
         <li>a directory of source files</li>
-        <li class="shared">the same 499 kB compiler</li>
+        <li class="shared">the same 514 kB compiler</li>
       </ul>
       <p class="pa-n">no setup · ~2 MB</p>
     </div>
@@ -998,12 +998,14 @@ never the problem. Now the message names the file, the line, and the limit that 
 <p>Naming the input is not politeness. It is the difference between a loop that converges
 and one that thrashes.</p>
 
-<h3>Code written last month still means what it meant</h3>
+<h3>When the rules change, they change loudly</h3>
 
-<p>The language is frozen, and a change that alters what existing working code does needs a
-far stronger argument than one that merely refuses something new. Code a generator produced
-last week does not get reread when the rules shift underneath it. It simply starts being
-wrong, quietly, somewhere nobody is looking.</p>
+<p>Before 1.0 the language can still change, and one thing has: the <code>{ }</code> comment
+was removed in 0.2.0 because a brace inside the comment text silently turned the rest of the
+sentence into code. That is the distinction that matters. A change that makes the compiler
+<em>refuse</em> something needs far less justification than one that alters what working code
+<em>does</em> — because code a generator produced last week does not get reread when the rules
+shift underneath it. It simply starts being wrong, quietly, somewhere nobody is looking.</p>
 
 <figure class="frozen" aria-label="The same program compiled last month and today gives the same result, because the language did not move underneath it. Linux and Windows are kept identical for the same reason.">
   <div class="fr-rows">
@@ -1011,8 +1013,8 @@ wrong, quietly, somewhere nobody is looking.</p>
     <div class="fr"><span class="fr-h">the same source today</span><span class="fr-v ok">compiles</span></div>
     <div class="fr"><span class="fr-h">…on Windows instead</span><span class="fr-v ok">compiles</span></div>
   </div>
-  <figcaption>The language is frozen and both targets are kept identical, so none of these
-  is a different question.</figcaption>
+  <figcaption>Both targets are kept identical, so none of these is a different
+  question.</figcaption>
 </figure>
 
 <p>For the same reason Linux and Windows are kept as identical as they can be made. A
@@ -1056,10 +1058,10 @@ end.</code></pre>
 <ul class="facts">
   <li><span><b>50 agents compiling at once</b> — wall clock until the last one finished</span> <span class="n">352 ms</span></li>
   <li><span>…their peak memory, all fifty together</span> <span class="n">&lt; 100 MB</span></li>
-  <li><span>Compiling the compiler with itself (6,380 lines)</span> <span class="n">27 ms</span></li>
+  <li><span>Compiling the compiler with itself (6,536 lines)</span> <span class="n">11 ms</span></li>
   <li><span>…and a 97,000-line program</span> <span class="n">2.2 s</span></li>
-  <li><span>Peak memory while compiling</span> <span class="n">1.9 MB</span></li>
-  <li><span>The compiler binary</span> <span class="n">499 kB</span></li>
+  <li><span>Peak memory while compiling</span> <span class="n">2.9 MB</span></li>
+  <li><span>The compiler binary</span> <span class="n">514 kB</span></li>
   <li><span>Full bootstrap from C to a fixed point</span> <span class="n">1 s</span></li>
   <li><span>External dependencies</span> <span class="n">0</span></li>
 </ul>
