@@ -1,0 +1,11 @@
+# There is no build step here: the site is index.html, and what you edit is what is
+# served. So this file has one job.
+
+# Never a credential in a repository. Nothing here reads a .env -- the DNS and deploy
+# keys live outside this repo entirely -- but if a copy ever drifts in, it must not be
+# committed. This repository is public.
+.env
+
+# Editor and OS leftovers.
+.DS_Store
+*.swp

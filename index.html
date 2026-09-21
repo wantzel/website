@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wantzel — a language for the AI coding era</title>
+<meta name="description" content="Most languages were designed for an author who reads the code back. Increasingly, the author is a model. Wantzel is a compiler built for that: strict, dependency-free, and fast enough to compile on every iteration.">
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --fg: #1a1815;
+    --muted: #5e5850;
+    --rule: #e3ded5;
+    --code-bg: #f2efe9;
+    --accent: #8a4218;
+    --accent-soft: #f0e4da;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15140f;
+      --fg: #ecebe6;
+      --muted: #a09a8f;
+      --rule: #2e2b25;
+      --code-bg: #1e1c18;
+      --accent: #e0a473;
+      --accent-soft: #2a211a;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 21px/1.62 ui-serif, Georgia, "Times New Roman", serif;
+  }
+  .wrap { max-width: 42rem; margin: 0 auto; padding: 0 1.25rem; }
+  header { padding-block: 5rem 1rem; }
+  .mark {
+    font: 600 .78rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 1.6rem;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 6.4vw, 3.2rem);
+    line-height: 1.1;
+    letter-spacing: -.022em;
+    margin: 0 0 1.1rem;
+    font-weight: 600;
+  }
+  .lede {
+    font-size: clamp(1.12rem, 3vw, 1.26rem);
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0;
+  }
+  .hook-cta {
+    font: 600 .95rem ui-sans-serif, system-ui, sans-serif;
+    margin: 1.8rem 0 0;
+  }
+  .hook-cta .sep { color: var(--rule); margin: 0 .3rem; }
+  /* ---- figuren -------------------------------------------------------- */
+  figure { margin: 2rem 0; }
+  figcaption {
+    font: .84rem/1.5 ui-sans-serif, system-ui, sans-serif;
+    color: var(--muted);
+    text-align: center;
+    margin-top: .8rem;
+  }
+  figcaption b { color: var(--fg); font-weight: 600; }
+  .loop svg { display: block; width: 100%; height: auto; }
+  .loop .stroke-accent {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .loop .fill-accent { fill: var(--accent); }
+  .loop .box-soft { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+  .loop .box-accent { fill: var(--accent); }
+  .loop .nm {
+    font: 700 16px ui-sans-serif, system-ui, sans-serif;
+    fill: var(--fg);
+    letter-spacing: -.01em;
+  }
+  .loop .sm {
+    font: 600 12px ui-monospace, Menlo, monospace;
+    fill: var(--muted);
+  }
+  .loop .inv { fill: var(--bg); }
+  .loop .inv.sm { fill: var(--bg); opacity: .8; }
+  .loop .lbl {
+    font: 600 12px ui-sans-serif, system-ui, sans-serif;
+    fill: var(--muted);
+  }
+  .loop .lbl.faint { opacity: .75; font-style: italic; }
+  /* The return leg is dashed because it is the loop rather than the outward path, and it
+     keeps an arrowhead because a line without one has no direction. */
+  .loop .dash { stroke-dasharray: 3 6; opacity: .8; }
+  /* The return leg carries the story, so it is heavier than the outward path and its label
+     is darker: the answer arriving in milliseconds is the whole reason a compile fits
+     inside the loop instead of after it. */
+  .loop .back { stroke-width: 2.75; }
+  .loop .lbl.strong { font-size: 14px; font-weight: 700; fill: var(--fg); }
+  /* the three lines of installation, just below the fold */
+  .quick pre { margin: 0; }
+  .quick .cm { color: var(--muted); opacity: .8; }
+  .prompt .cm { color: var(--accent); opacity: .85; }
+  /* A list rather than prose: this is an enumeration, and an enumeration written with commas
+     makes the reader take it apart again. Generous spacing, because whitespace is the point. */
+  .wins { list-style: none; padding: 0; margin: 2.2rem 0 0; display: grid; gap: 1.15rem; }
+  .wins li { font-size: 1rem; line-height: 1.65; color: var(--muted); max-width: 34rem; }
+  .wins li b { color: var(--fg); font-weight: 600; }
+  .lineage { color: var(--muted); max-width: 34rem; margin: 2.6rem 0 0; line-height: 1.7; }
+  @keyframes fill {
+    0%, 8%   { opacity: .12; }
+    55%,100% { opacity: .85; }
+  }
+  /* 21px is sized for reading at screen distance; on a phone it would make the line
+     too short to read comfortably. */
+  @media (max-width: 620px) {
+    body { font: 17px/1.62 ui-serif, Georgia, "Times New Roman", serif; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .grid50 .cells i { animation: none; opacity: .7; }
+  }
+  h2 {
+    font: 600 .78rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 3.6rem 0 1.1rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--rule);
+  }
+  h3 {
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin: 2.4rem 0 .6rem;
+    letter-spacing: -.005em;
+  }
+  h3:first-of-type { margin-top: 1.6rem; }
+  p { margin: 0 0 1.1rem; }
+  strong { font-weight: 600; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  code { font-size: .86em; background: var(--code-bg); padding: .12em .38em; border-radius: 3px; }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 1.05rem 1.15rem;
+    overflow-x: auto;
+    font-size: .845rem;
+    line-height: 1.6;
+    margin: 0 0 1.1rem;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .pull {
+    border-left: 2px solid var(--accent);
+    padding: .2rem 0 .2rem 1.3rem;
+    margin: 2rem 0;
+    font-size: clamp(1.12rem, 2.6vw, 1.28rem);
+    line-height: 1.5;
+    letter-spacing: -.01em;
+  }
+  .pull p:last-child { margin-bottom: 0; }
+  footer {
+    margin-top: 4rem;
+    padding-block: 1.6rem 4rem;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: .92rem;
+  }
+  footer p { margin: 0 0 .4rem; }
+  .f-links { font-weight: 600; }
+  .f-links .sep { color: var(--rule); margin: 0 .3rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="mark">Wantzel</p>
+  <h1>A programming language for the code AI agents write.</h1>
+  <p class="lede">Compiles in milliseconds, into a dependency-free binary that needs almost
+  no memory to run — and refuses anything it cannot prove correct, out loud. So agents can
+  write code here, and iterate on it in large swarms, on the machine you already have.</p>
+
+  <p class="hook-cta"><a href="#try">Where to go next</a> <span class="sep">·</span>
+     <a href="https://github.com/wantzel/wantzel">Source on GitHub</a></p>
+</header>
+
+<figure class="loop" aria-label="An agent writes a program; within milliseconds the compiler returns either a compiled binary or a verbose message naming the file, line and reason; the agent corrects, and the loop repeats.">
+  <svg viewBox="0 0 560 176" role="img" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ar" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+        <path d="M1 1 L11 6 L1 11 z" class="fill-accent"/>
+      </marker>
+    </defs>
+
+    <rect x="10" y="22" width="164" height="72" rx="12" class="box-soft"/>
+    <text x="92"  y="54"  class="nm" text-anchor="middle">your agent</text>
+    <text x="92"  y="75"  class="sm" text-anchor="middle">writes &#183; corrects</text>
+
+    <rect x="386" y="22" width="164" height="72" rx="12" class="box-accent"/>
+    <text x="468" y="64"  class="nm inv" text-anchor="middle">wantzel</text>
+
+    <!-- out: a program -->
+    <path d="M182 58 H378" class="stroke-accent" marker-end="url(#ar)"/>
+    <text x="280" y="48" class="lbl" text-anchor="middle">a program</text>
+
+    <!-- back: one line, the loop itself, carrying the answer -->
+    <path d="M468 106 V128 H92 V106" class="stroke-accent back dash" marker-end="url(#ar)"/>
+    <text x="280" y="148" class="lbl strong" text-anchor="middle">a compiled binary, or a verbose message</text>
+    <text x="280" y="166" class="lbl strong" text-anchor="middle">&#8212; in milliseconds</text>
+  </svg>
+  <figcaption>Fast enough to sit inside the loop, not after it.</figcaption>
+</figure>
+
+<main>
+
+<h2>Try it</h2>
+
+<figure class="quick" aria-label="Three commands: clone the repository, run build.sh which needs a C compiler exactly once, then compile and run a program.">
+  <pre><code>git clone https://github.com/wantzel/wantzel  <span class="cm"># get it</span>
+cd wantzel &amp;&amp; ./build.sh                      <span class="cm"># build, once</span>
+./bin/wantzel hello.wz hello &amp;&amp; ./hello       <span class="cm"># compile and run</span></code></pre>
+  <figcaption>That is the whole installation. There is no second step.</figcaption>
+</figure>
+
+
+<h2>Why</h2>
+
+<p>You are shipping code you did not write and have only partly read. Plausible code is
+exactly what a generator is good at producing, so the compiler has to hold what a careful
+author used to hold.</p>
+
+<p class="pull">Four properties, and together they are the point: agents can write code
+here, and iterate on it in large swarms &#8212; on ordinary hardware.</p>
+
+<ul class="wins">
+  <li><b>Compile speed</b> &#8212; over 800,000 lines per second. Fast enough to compile on
+      every change, which is what makes iterating possible at all.</li>
+  <li><b>Dependency-free binaries</b> &#8212; one static binary, and the programs
+      it produces are the same. Nothing to install per agent, so there is nothing to isolate
+      and nothing to tear down.</li>
+  <li><b>Low memory at run time</b> &#8212; no runtime, no garbage collector, no virtual
+      machine. Fifty agents fit on the machine you already have.</li>
+  <li><b>A strict, verbose compiler</b> &#8212; what it refuses is what nobody has to review,
+      and what it accepts it accepts in silence. Otherwise: the file, the line, and the
+      reason, in a form an agent can act on without a human reading it first.</li>
+</ul>
+
+<p class="lineage">Two languages shaped this one: <i>Turbo Pascal</i>, for what a short
+loop feels like &#8212; you pressed a key and your program ran, so you iterated in thought
+rather than in waiting time. And <i>Go</i>, for the shape of the thing you ship: a static
+binary with no runtime to install. The loop from one, the artifact from the other.</p>
+
+<h2 id="try">Where to go next</h2>
+
+<p>The repository holds the language reference, the reasoning behind the design, and worked
+examples — among them an MCP server, an HTTP server, a file server over MCP and an OAuth
+flow, each a single file you can read in one sitting.</p>
+
+
+</main>
+
+<footer>
+  <p class="f-links">
+    <a href="https://github.com/wantzel/wantzel">github.com/wantzel/wantzel</a>
+    <span class="sep">·</span>
+    <a href="mailto:floris@wantzel.com">floris@wantzel.com</a>
+  </p>
+  <p>MIT licensed.</p>
+</footer>
+
+</div>
+</body>
+</html>
