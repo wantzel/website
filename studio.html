@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wantzel AI Studio</title>
+<meta name="description" content="The editor is where agents work, not a window you paste their output into. Wantzel AI Studio is the paid product built on the Wantzel compiler: an integrated MCP server, a compile loop measured in milliseconds, and no lock-in to one AI vendor.">
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --fg: #1a1815;
+    --body: #454036;
+    --muted: #5e5850;
+    --faint: #8f887c;
+    --rule: #e3ded5;
+    --code-bg: #f2efe9;
+    --accent: #8a4218;
+    --accent-soft: #f0e4da;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15140f;
+      --fg: #ecebe6;
+      --body: #d4d0c8;
+      --muted: #a09a8f;
+      --faint: #77726a;
+      --rule: #2e2b25;
+      --code-bg: #1e1c18;
+      --accent: #e0a473;
+      --accent-soft: #2a211a;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--body);
+    font: 21px/1.62 ui-serif, Georgia, "Times New Roman", serif;
+  }
+  .wrap { max-width: 42rem; margin: 0 auto; padding: 0 1.25rem; }
+  header { padding-block: 5rem 1rem; }
+  .mark {
+    display: flex; align-items: center; gap: .6rem;
+    font: 600 .78rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 1.6rem;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 6.4vw, 3.2rem);
+    line-height: 1.1;
+    letter-spacing: -.022em;
+    margin: 0 0 1.1rem;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .lede {
+    font-size: clamp(1.12rem, 3vw, 1.26rem);
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0;
+  }
+  .hook-cta {
+    font: 600 .95rem ui-sans-serif, system-ui, sans-serif;
+    margin: 1.8rem 0 0;
+  }
+  .hook-cta .sep { color: var(--rule); margin: 0 .3rem; }
+  .price-note {
+    margin: 1.4rem 0 0;
+    color: var(--faint);
+    font-size: .92rem;
+  }
+  h2 {
+    font: 600 .78rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 3.6rem 0 1.1rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--rule);
+  }
+  p { margin: 0 0 1.1rem; }
+  strong { font-weight: 600; color: var(--fg); }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .86em; background: var(--code-bg); padding: .12em .38em; border-radius: 3px; }
+  .today { list-style: none; padding: 0; margin: 1.6rem 0 0; display: grid; gap: 1.15rem; }
+  .today li { font-size: 1rem; line-height: 1.65; color: var(--body); max-width: 34rem; }
+  .today li b { color: var(--fg); font-weight: 600; }
+  .coming {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.4rem 1.5rem;
+    margin: 1.6rem 0 0;
+    background: var(--code-bg);
+  }
+  .coming p:last-child { margin-bottom: 0; }
+  .coming .tag {
+    display: inline-block;
+    font: 600 .74rem/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 .8rem;
+  }
+  .coming ul { margin: 0; padding-left: 1.2rem; color: var(--muted); }
+  .coming li { margin: 0 0 .5rem; }
+  footer {
+    margin-top: 4rem;
+    padding-block: 1.6rem 4rem;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: .92rem;
+  }
+  footer p { margin: 0 0 .4rem; }
+  .f-links { font-weight: 600; }
+  .f-links .sep { color: var(--rule); margin: 0 .3rem; }
+  @media (max-width: 620px) {
+    body { font: 17px/1.62 ui-serif, Georgia, "Times New Roman", serif; }
+  }
+  figure { margin: 2.2rem 0 0; }
+  figure img {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+  }
+  .shots { display: grid; gap: 2.4rem; margin-top: 1rem; }
+  .shots h3 { font: 600 1rem/1.3 ui-sans-serif, system-ui, sans-serif; margin: 0 0 .3rem; }
+  .shots p { margin: 0 0 .8rem; }
+  figcaption {
+    margin-top: .6rem;
+    font: .86rem/1.5 ui-sans-serif, system-ui, sans-serif;
+    color: var(--faint);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="mark"><a href="index.html"><img src="wantzel.svg" width="28" height="28" alt="Wantzel"></a>Wantzel AI Studio</p>
+  <h1>A studio where people and agents build together.</h1>
+  <p class="lede">You and your agents work in the same files, with the same tools. Every
+  action you take by hand — read, write, build, run, debug — an agent can take too, and
+  the compiler's exact message reaches both of you, so either one can fix what the other
+  started.</p>
+
+  <p class="hook-cta"><a href="https://github.com/wantzel/wantzel">The compiler is free and open source</a>
+     <span class="sep">·</span> <a href="mailto:floris@wantzel.com">floris@wantzel.com</a></p>
+  <p class="price-note">Studio is the paid product. The language and compiler underneath it
+  stay MIT-licensed, always.</p>
+
+  <figure>
+    <img src="img/1-editor.png" alt="Wantzel AI Studio in the browser: a small MCP server open in the editor beside the explorer with three projects; the status bar reports the build.">
+    <figcaption>The editor, mid-session: real projects, a real build. The status bar is the
+    compiler's own report, not a mock-up.</figcaption>
+  </figure>
+</header>
+
+<main>
+
+<h2>What it does today</h2>
+
+<ul class="today">
+  <li><b>Integrated MCP server</b> — every manual action is a tool an agent can call. Read,
+      write, browse, compile, run. No plugin, no bridge, no configuration.</li>
+  <li><b>Agents that fix their own mistakes</b> — <code>build</code> and <code>run</code> are
+      tools, so the agent gets the compiler's exact message and corrects itself. You ask for
+      a working program, not a draft.</li>
+  <li><b>An extremely short write-compile-feedback cycle</b> — 2 ms per compile, so being
+      wrong fifty times costs a tenth of a second. Sixteen-way parallel it is 400 full
+      compiles in 0.15 s — the toolchain is never the thing you wait for.</li>
+  <li><b>Language helpers that cut the iterations</b> — the agent looks up a topic, searches
+      for the one line that matters, or pulls a proven example instead of guessing. Measured
+      over ten tasks: a median of 5 compile attempts against 12 without, 5 against 57 at
+      worst, and about half the wall-clock time.</li>
+  <li><b>Integrated ticket system</b> — your tickets are a panel. Hand one to an agent and it
+      reads the ticket, writes the code, compiles it, and writes back into the work log.</li>
+  <li><b>Work you can watch and take over</b> — a tool writes a file and the window updates.
+      No diff at the end, no sandbox you cannot see into.</li>
+  <li><b>Your login, your machine</b> — the studio starts the agent you already have. No API
+      key, no per-token bill, no code sent to a service you did not pick.</li>
+  <li><b>No lock-in to one AI vendor</b> — more than one coding model from the start, so a
+      service going away overnight does not stop your work.</li>
+  <li><b>Runs on Windows and Linux</b> — the same server, the same tools, the same ticket
+      and agent workflow on both.</li>
+  <li><b>A fleet view for many agents</b> — how many run, what each is doing, and a launch
+      button per profile, in one panel.</li>
+</ul>
+
+
+<h2>Working together</h2>
+
+<div class="shots">
+  <section>
+    <h3>You set a breakpoint; the program stops where you said</h3>
+    <p>Click a line to set a breakpoint, start debugging, step over, into and out. The
+    variables are the program's real memory: globals, arrays, records, unfolded on demand.</p>
+    <figure><img src="img/2-debugger.png" alt="The debugger stopped on line 52 of primes.wz: the step bar at the top, the breakpoint on line 50, and the Variables view showing i = 2, j = 0, count = 0 and the composite array."></figure>
+  </section>
+  <section>
+    <h3>A mistake is explained where you made it</h3>
+    <p>Errors appear while you type, before any build. The explanation comes from the same
+    language help an agent reads, with a fix that compiles -- apply it yourself, or hand the
+    error, its context and that help to an agent.</p>
+    <figure><img src="img/3-uitleg.png" alt="A typo on line 50 underlined; the explanation beside it with the compiler message, the relevant help sections, a table of causes and fixes, two quick fixes and a Fix with agent button."></figure>
+  </section>
+  <section>
+    <h3>An agent works in the same files you do</h3>
+    <p>Pick the engine, ask in plain words, and watch the agent build, run and correct
+    itself with the same tools you use by hand. Nothing happens in a window you cannot see.</p>
+    <figure><img src="img/4-agents.png" alt="The agent panel beside the editor: an engine choice, the conversation, and the input line."></figure>
+  </section>
+  <section>
+    <h3>Or just describe what you want</h3>
+    <p>For people who do not program: describe the program in plain language. The studio
+    has an agent write it, compiles it, lets the agent repair what does not compile, and
+    runs it -- and you steer in plain language too.</p>
+    <figure><img src="img/5-maak-iets.png" alt="The Make something screen: one large text field for a plain-language description and a button to make it."></figure>
+  </section>
+</div>
+
+<h2>Coming</h2>
+
+<div class="coming">
+  <p class="tag">Not built yet — named so you know what to expect next, not what to expect now</p>
+  <ul>
+    <li>Fleets of agents in parallel, on ordinary hardware instead of a VPS per handful.</li>
+    <li>Automatic failover between coding models when one is rate-limited or down.</li>
+    <li>Every session feeding the language documentation the next one reads, so the same
+        mistake is made once.</li>
+  </ul>
+</div>
+
+</main>
+
+<footer>
+  <p class="f-links">
+    <a href="https://github.com/wantzel/wantzel">github.com/wantzel/wantzel</a>
+    <span class="sep">·</span>
+    <a href="mailto:floris@wantzel.com">floris@wantzel.com</a>
+  </p>
+  <p>Wantzel AI Studio is proprietary. The Wantzel language and compiler are MIT licensed.</p>
+</footer>
+
+</div>
+</body>
+</html>
