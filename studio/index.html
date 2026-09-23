@@ -151,9 +151,10 @@
   stay MIT-licensed, always.</p>
 
   <figure>
-    <a class="zoom" href="img/1-editor.png"><img src="img/1-editor.png" alt="Wantzel AI Studio in the browser: a small MCP server open in the editor beside the explorer with three projects; the status bar reports the build."></a>
-    <figcaption>The editor, mid-session: real projects, a real build. The status bar is the
-    compiler's own report, not a mock-up.</figcaption>
+    <a class="zoom" href="img/1-editor.png"><img src="img/1-editor.png" alt="Wantzel AI Studio in the browser: mcptools.wz open in the editor, its tools block of three one-line tool declarations in view, the explorer beside it and 'build ok' in the status bar."></a>
+    <figcaption>An MCP server in the editor: three tools, one line each in a <code>tools</code>
+    block, and the compiler writes the rest. The status bar is the compiler's own report,
+    not a mock-up.</figcaption>
   </figure>
 </header>
 
@@ -202,27 +203,64 @@
     <h3>You set a breakpoint; the program stops where you said</h3>
     <p>Click a line to set a breakpoint, start debugging, step over, into and out. The
     variables are the program's real memory: globals, arrays, records, unfolded on demand.</p>
-    <figure><a class="zoom" href="img/2-debugger.png"><img src="img/2-debugger.png" alt="The debugger stopped on line 52 of primes.wz: the step bar at the top, the breakpoint on line 50, and the Variables view showing i = 2, j = 0, count = 0 and the composite array."></a></figure>
+    <figure><a class="zoom" href="img/2-debugger.png"><img src="img/2-debugger.png" alt="The debugger paused in primes.wz after a step from the breakpoint on line 20: the step bar at the top, the call stack putn above main, and the Variables view with locals and globals such as count = 17984 and the composite array."></a></figure>
   </section>
   <section>
     <h3>A mistake is explained where you made it</h3>
     <p>Errors appear while you type, before any build. The explanation comes from the same
     language help an agent reads, with a fix that compiles -- apply it yourself, or hand the
     error, its context and that help to an agent.</p>
-    <figure><a class="zoom" href="img/3-uitleg.png"><img src="img/3-uitleg.png" alt="A typo on line 50 underlined; the explanation beside it with the compiler message, the relevant help sections, a table of causes and fixes, two quick fixes and a Fix with agent button."></a></figure>
+    <figure><a class="zoom" href="img/3-explain.png"><img src="img/3-explain.png" alt="A typo on line 50 of structures.wz marked in the margin; the explanation above it with the compiler message 'undeclared identifier: totlk', the relevant help sections and a table of causes and fixes."></a></figure>
   </section>
   <section>
     <h3>An agent works in the same files you do</h3>
     <p>Pick the engine, ask in plain words, and watch the agent build, run and correct
     itself with the same tools you use by hand. Nothing happens in a window you cannot see.</p>
-    <figure><a class="zoom" href="img/4-agents.png"><img src="img/4-agents.png" alt="The agent panel beside the editor: an engine choice, the conversation, and the input line."></a></figure>
+    <figure><a class="zoom" href="img/4-agents.png"><img src="img/4-agents.png" alt="The agent panel beside the editor: an engine choice, the conversation area, and the input line with a Send button."></a></figure>
   </section>
   <section>
     <h3>Or just describe what you want</h3>
     <p>For people who do not program: describe the program in plain language. The studio
     has an agent write it, compiles it, lets the agent repair what does not compile, and
     runs it -- and you steer in plain language too.</p>
-    <figure><a class="zoom" href="img/5-maak-iets.png"><img src="img/5-maak-iets.png" alt="The Build Something screen: one large text field for a plain-language description and a button to make it."></a></figure>
+    <figure><a class="zoom" href="img/5-build-something.png"><img src="img/5-build-something.png" alt="The Build something screen: one large text field for a plain-language description, an agent choice and a Build it button."></a></figure>
+  </section>
+  <section>
+    <h3>Profiles give every agent a clear job</h3>
+    <p>A profile is a role in one sentence plus the instructions an agent starts with:
+    builder, tester, reviewer, and two dozen more. Switch them on, edit them, or write
+    your own.</p>
+    <figure><a class="zoom" href="img/6-profiles.png"><img src="img/6-profiles.png" alt="The profiles list grouped into software, general and care roles, with the builder profile selected."></a></figure>
+  </section>
+  <section>
+    <h3>Browse and edit the tables of your own app</h3>
+    <p>Point the table browser at any app that offers its tables over MCP. Filter, page
+    through the rows, and edit a field where the app allows it -- through the app's own
+    tools, so its validation still applies.</p>
+    <figure><a class="zoom" href="img/7-database.png"><img src="img/7-database.png" alt="The Database panel connected to a small demo app with three tables; the books table open as a grid of 24 rows, and the first row's fields beside it with the editable ones marked."></a></figure>
+  </section>
+  <section>
+    <h3>Tickets are a panel, and an agent can take one</h3>
+    <p>Search, read and change the status of your tickets beside the code. Give one to an
+    agent: it reads the ticket, writes the code, compiles it and logs what it did.</p>
+    <figure><a class="zoom" href="img/8-tickets.png"><img src="img/8-tickets.png" alt="The ticket panel: seven tickets with their number, priority and title, one of them open below with its description and the buttons Open as Document and Give to Agent."></a></figure>
+  </section>
+  <section>
+    <h3>History, one line per change</h3>
+    <p>The project's commits as a graph: message, hash, author and time, newest on top.</p>
+    <figure><a class="zoom" href="img/9-history.png"><img src="img/9-history.png" alt="The history panel listing nine commits with message, short hash, author and date."></a></figure>
+  </section>
+  <section>
+    <h3>Two panes for files, keyboard first</h3>
+    <p>A commander in the sidebar: two folders side by side, and view, edit, copy, move,
+    make a folder and delete on the function keys.</p>
+    <figure><a class="zoom" href="img/10-commander.png"><img src="img/10-commander.png" alt="The commander: two file panes side by side on the project folder, and a row of function-key actions below them."></a></figure>
+  </section>
+  <section>
+    <h3>The language help is built in</h3>
+    <p>The same documentation the agents read, in a panel: topics, pitfalls, examples and
+    shortcuts, searchable, with code you can copy.</p>
+    <figure><a class="zoom" href="img/11-help.png"><img src="img/11-help.png" alt="The help panel with a search field, buttons for pitfalls, ecosystem, examples and shortcuts, the list of topics, and the tour with a code sample."></a></figure>
   </section>
 </div>
 
