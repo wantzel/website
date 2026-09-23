@@ -92,24 +92,6 @@
   .today { list-style: none; padding: 0; margin: 1.6rem 0 0; display: grid; gap: 1.15rem; }
   .today li { font-size: 1rem; line-height: 1.65; color: var(--body); max-width: 34rem; }
   .today li b { color: var(--fg); font-weight: 600; }
-  .coming {
-    border: 1px solid var(--rule);
-    border-radius: 8px;
-    padding: 1.4rem 1.5rem;
-    margin: 1.6rem 0 0;
-    background: var(--code-bg);
-  }
-  .coming p:last-child { margin-bottom: 0; }
-  .coming .tag {
-    display: inline-block;
-    font: 600 .74rem/1 ui-sans-serif, system-ui, sans-serif;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--faint);
-    margin: 0 0 .8rem;
-  }
-  .coming ul { margin: 0; padding-left: 1.2rem; color: var(--muted); }
-  .coming li { margin: 0 0 .5rem; }
   footer {
     margin-top: 4rem;
     padding-block: 1.6rem 4rem;
@@ -177,7 +159,7 @@
 
 <main>
 
-<h2>What it does today</h2>
+<h2>Features</h2>
 
 <ul class="today">
   <li><b>Integrated MCP server</b> — every manual action is a tool an agent can call. Read,
@@ -204,6 +186,12 @@
       and agent workflow on both.</li>
   <li><b>A fleet view for many agents</b> — how many run, what each is doing, and a launch
       button per profile, in one panel.</li>
+  <li><b>Fleets of agents in parallel</b> — on ordinary hardware instead of a VPS per
+      handful.</li>
+  <li><b>Automatic failover between coding models</b> — when one is rate-limited or down,
+      the work moves to the next.</li>
+  <li><b>Documentation that learns</b> — every session feeds the language documentation the
+      next one reads, so the same mistake is made once.</li>
 </ul>
 
 
@@ -234,20 +222,8 @@
     <p>For people who do not program: describe the program in plain language. The studio
     has an agent write it, compiles it, lets the agent repair what does not compile, and
     runs it -- and you steer in plain language too.</p>
-    <figure><a class="zoom" href="img/5-maak-iets.png"><img src="img/5-maak-iets.png" alt="The Make something screen: one large text field for a plain-language description and a button to make it."></a></figure>
+    <figure><a class="zoom" href="img/5-maak-iets.png"><img src="img/5-maak-iets.png" alt="The Build Something screen: one large text field for a plain-language description and a button to make it."></a></figure>
   </section>
-</div>
-
-<h2>Coming</h2>
-
-<div class="coming">
-  <p class="tag">Not built yet — named so you know what to expect next, not what to expect now</p>
-  <ul>
-    <li>Fleets of agents in parallel, on ordinary hardware instead of a VPS per handful.</li>
-    <li>Automatic failover between coding models when one is rate-limited or down.</li>
-    <li>Every session feeding the language documentation the next one reads, so the same
-        mistake is made once.</li>
-  </ul>
 </div>
 
 </main>
