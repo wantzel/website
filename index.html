@@ -9,6 +9,9 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="Most languages were designed for an author who reads the code back. Increasingly, the author is a model. Wantzel is a compiler built for that: strict, dependency-free, and fast enough to compile on every iteration.">
 <style>
+  /* Everything is sized in rem, so this one line sets the scale of the whole page,
+     relative to the reader's own browser setting. */
+  html { font-size: 125%; }
   :root {
     --bg: #fbfaf8;
     --fg: #1a1815;
@@ -35,7 +38,7 @@
     margin: 0;
     background: var(--bg);
     color: var(--fg);
-    font: 21px/1.62 ui-serif, Georgia, "Times New Roman", serif;
+    font: 1.3125rem/1.62 ui-serif, Georgia, "Times New Roman", serif;
   }
   .wrap { max-width: 42rem; margin: 0 auto; padding: 0 1.25rem; }
   header { padding-block: 5rem 1rem; }
@@ -86,18 +89,18 @@
   .loop .box-soft { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
   .loop .box-accent { fill: var(--accent); }
   .loop .nm {
-    font: 700 16px ui-sans-serif, system-ui, sans-serif;
+    font: 700 1rem ui-sans-serif, system-ui, sans-serif;
     fill: var(--fg);
     letter-spacing: -.01em;
   }
   .loop .sm {
-    font: 600 12px ui-monospace, Menlo, monospace;
+    font: 600 0.75rem ui-monospace, Menlo, monospace;
     fill: var(--muted);
   }
   .loop .inv { fill: var(--bg); }
   .loop .inv.sm { fill: var(--bg); opacity: .8; }
   .loop .lbl {
-    font: 600 12px ui-sans-serif, system-ui, sans-serif;
+    font: 600 0.75rem ui-sans-serif, system-ui, sans-serif;
     fill: var(--muted);
   }
   .loop .lbl.faint { opacity: .75; font-style: italic; }
@@ -108,7 +111,7 @@
      is darker: the answer arriving in milliseconds is the whole reason a compile fits
      inside the loop instead of after it. */
   .loop .back { stroke-width: 2.75; }
-  .loop .lbl.strong { font-size: 14px; font-weight: 700; fill: var(--fg); }
+  .loop .lbl.strong { font-size: 0.875rem; font-weight: 700; fill: var(--fg); }
   /* the three lines of installation, just below the fold */
   .quick pre { margin: 0; }
   .quick .cm { color: var(--muted); opacity: .8; }
@@ -126,7 +129,7 @@
   /* 21px is sized for reading at screen distance; on a phone it would make the line
      too short to read comfortably. */
   @media (max-width: 620px) {
-    body { font: 17px/1.62 ui-serif, Georgia, "Times New Roman", serif; }
+    body { font: 1.0625rem/1.62 ui-serif, Georgia, "Times New Roman", serif; }
   }
   @media (prefers-reduced-motion: reduce) {
     .grid50 .cells i { animation: none; opacity: .7; }

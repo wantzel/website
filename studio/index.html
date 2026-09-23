@@ -6,6 +6,9 @@
 <title>Wantzel AI Studio</title>
 <meta name="description" content="The editor is where agents work, not a window you paste their output into. Wantzel AI Studio is the paid product built on the Wantzel compiler: an integrated MCP server, a compile loop measured in milliseconds, and no lock-in to one AI vendor.">
 <style>
+  /* Everything is sized in rem, so this one line sets the scale of the whole page,
+     relative to the reader's own browser setting. */
+  html { font-size: 125%; }
   :root {
     --bg: #fbfaf8;
     --fg: #1a1815;
@@ -36,7 +39,7 @@
     margin: 0;
     background: var(--bg);
     color: var(--body);
-    font: 21px/1.62 ui-serif, Georgia, "Times New Roman", serif;
+    font: 1.3125rem/1.62 ui-serif, Georgia, "Times New Roman", serif;
   }
   .wrap { max-width: 42rem; margin: 0 auto; padding: 0 1.25rem; }
   header { padding-block: 5rem 1rem; }
@@ -118,7 +121,7 @@
   .f-links { font-weight: 600; }
   .f-links .sep { color: var(--rule); margin: 0 .3rem; }
   @media (max-width: 620px) {
-    body { font: 17px/1.62 ui-serif, Georgia, "Times New Roman", serif; }
+    body { font: 1.0625rem/1.62 ui-serif, Georgia, "Times New Roman", serif; }
   }
   figure { margin: 2.2rem 0 0; }
   figure img {
