@@ -243,8 +243,10 @@ author used to hold.</p>
 here, and iterate on it in large swarms &#8212; on ordinary hardware.</p>
 
 <ul class="wins">
-  <li><b>Compile speed</b> &#8212; over 800,000 lines per second. Fast enough to compile on
-      every change, which is what makes iterating possible at all.</li>
+  <li><b>Compile speed</b> &#8212; the compiler compiles its own 7,800 lines in about 10 ms.
+      Fast enough to compile on every change, which is what makes iterating possible at all.
+      How fast depends on what the source is made of &#8212; by a factor of sixteen &#8212;
+      so the suite reports a rate per shape rather than one number.</li>
   <li><b>Dependency-free binaries</b> &#8212; one static binary, and the programs
       it produces are the same. Nothing to install per agent, so there is nothing to isolate
       and nothing to tear down.</li>
@@ -253,6 +255,12 @@ here, and iterate on it in large swarms &#8212; on ordinary hardware.</p>
   <li><b>A strict, verbose compiler</b> &#8212; what it refuses is what nobody has to review,
       and what it accepts it accepts in silence. Otherwise: the file, the line, and the
       reason, in a form an agent can act on without a human reading it first.</li>
+  <li><b>HTTPS without linking anything</b> &#8212; TLS 1.3 is written in the language
+      itself: the handshake, X25519, ChaCha20-Poly1305, ECDSA, RSA, chain verification and
+      a trust store. A complete HTTPS client is a 287 kB static binary that fetches from
+      github.com, cloudflare.com and letsencrypt.org over a fully verified connection, and
+      refuses one whose certificate does not match the name. No OpenSSL, no certbot. There
+      is no DNS resolver, so a client is given the address and the hostname separately.</li>
 </ul>
 
 <p class="lineage">Two languages shaped this one: <i>Turbo Pascal</i>, for what a short
@@ -263,8 +271,8 @@ binary with no runtime to install. The loop from one, the artifact from the othe
 <h2 id="try">Where to go next</h2>
 
 <p>The repository holds the language reference, the reasoning behind the design, and worked
-examples — among them an MCP server, an HTTP server, a file server over MCP and an OAuth
-flow, each a single file you can read in one sitting.</p>
+examples — among them an MCP server, an HTTP server, an HTTPS client and server, a file
+server over MCP and an OAuth flow, each a single file you can read in one sitting.</p>
 
 
 </main>
