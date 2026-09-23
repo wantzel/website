@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wantzel — a language for the AI coding era</title>
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="wantzel.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="Most languages were designed for an author who reads the code back. Increasingly, the author is a model. Wantzel is a compiler built for that: strict, dependency-free, and fast enough to compile on every iteration.">
 <style>
   :root {
@@ -37,6 +40,7 @@
   .wrap { max-width: 42rem; margin: 0 auto; padding: 0 1.25rem; }
   header { padding-block: 5rem 1rem; }
   .mark {
+    display: flex; align-items: center; gap: .6rem;
     font: 600 .78rem/1 ui-sans-serif, system-ui, sans-serif;
     letter-spacing: .16em;
     text-transform: uppercase;
@@ -184,7 +188,7 @@
 <div class="wrap">
 
 <header>
-  <p class="mark">Wantzel</p>
+  <p class="mark"><img src="wantzel.svg" width="28" height="28" alt="">Wantzel</p>
   <h1>A programming language for the code AI agents write.</h1>
   <p class="lede">Compiles in milliseconds, into a dependency-free binary that needs almost
   no memory to run — and refuses anything it cannot prove correct, out loud. So agents can
