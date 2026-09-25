@@ -3,8 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wantzel AI Studio</title>
-<meta name="description" content="Wantzel AI Studio runs fleets of coding agents that keep working: hundreds at once, each in its own lane, picked up again after a restart and restarted when they stall. The paid product built on the Wantzel compiler: an integrated MCP server, a compile loop measured in milliseconds, and no lock-in to one AI vendor.">
+<title>Wantzel AI Studio — run and supervise coding agents</title>
+<meta name="description" content="Run and supervise coding agents in one browser workspace. Agents use the same files and tools you do, continue through restarts, and correct code with compiler feedback.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://wantzel.com/studio/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wantzel">
+<meta property="og:title" content="Wantzel AI Studio — run and supervise coding agents">
+<meta property="og:description" content="Run and supervise coding agents in one browser workspace. Agents use the same files and tools you do, continue through restarts, and correct code with compiler feedback.">
+<meta property="og:url" content="https://wantzel.com/studio/">
+<meta property="og:image" content="https://wantzel.com/studio/img/1-editor.png">
+<meta property="og:image:width" content="1400">
+<meta property="og:image:height" content="880">
+<meta property="og:image:alt" content="Wantzel AI Studio with a Wantzel program open in the editor">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wantzel AI Studio — run and supervise coding agents">
+<meta name="twitter:description" content="Run and supervise coding agents in one browser workspace. Agents use the same files and tools you do, continue through restarts, and correct code with compiler feedback.">
+<meta name="twitter:image" content="https://wantzel.com/studio/img/1-editor.png">
+<meta name="twitter:image:alt" content="Wantzel AI Studio with a Wantzel program open in the editor">
 <style>
   /* Everything is sized in rem, so this one line sets the scale of the whole page,
      relative to the reader's own browser setting. */
@@ -104,7 +120,12 @@
   .f-links { font-weight: 600; }
   .f-links .sep { color: var(--rule); margin: 0 .3rem; }
   @media (max-width: 620px) {
-    body { font: 1.0625rem/1.62 ui-serif, Georgia, "Times New Roman", serif; }
+    body { font: 17px/1.62 ui-serif, Georgia, "Times New Roman", serif; }
+    h1 { font-size: 1.8rem; }
+    .hook-cta, .f-links { display: grid; justify-items: start; gap: .35rem; }
+    .hook-cta .sep, .f-links .sep { display: none; }
+    footer { font-size: 14px; line-height: 1.5; }
+    .f-links { font: 600 14px/1.4 ui-sans-serif, system-ui, sans-serif; }
   }
   figure { margin: 2.2rem 0 0; }
   figure img {
@@ -121,17 +142,131 @@
     font: .86rem/1.5 ui-sans-serif, system-ui, sans-serif;
     color: var(--faint);
   }
-  a.zoom { display: block; cursor: zoom-in; }
+  a.zoom { position: relative; display: block; cursor: zoom-in; }
+  a.zoom::after {
+    content: "View full size";
+    position: absolute;
+    top: .55rem;
+    right: .55rem;
+    padding: .28rem .5rem;
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--fg);
+    font: 600 .68rem/1.2 ui-sans-serif, system-ui, sans-serif;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
+  }
+  @media (max-width: 620px) {
+    a.zoom {
+      overflow: hidden;
+      border-radius: 6px;
+      background: var(--code-bg);
+    }
+    a.zoom img {
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      object-position: left top;
+      border-radius: 6px;
+    }
+    a.zoom::after {
+      position: absolute;
+      display: block;
+      top: .4rem;
+      right: .4rem;
+      bottom: auto;
+      padding: .28rem .5rem;
+      border: 0;
+      border-radius: 6px;
+      background: var(--bg);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+      font-size: 12px;
+    }
+  }
   .lightbox {
     position: fixed; inset: 0; z-index: 10;
-    display: flex; align-items: center; justify-content: center;
     padding: 2vmin; background: rgba(14, 12, 10, .9);
     cursor: zoom-out;
+    pointer-events: none;
   }
   .lightbox[hidden] { display: none; }
+  .lightbox-viewport {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+  }
   .lightbox img {
     max-width: 100%; max-height: 100%;
     border-radius: 6px; box-shadow: 0 8px 40px rgba(0, 0, 0, .5);
+  }
+  .lightbox-close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 11;
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    background: var(--bg);
+    color: var(--fg);
+    font: 400 1.5rem/1 ui-sans-serif, system-ui, sans-serif;
+    cursor: pointer;
+  }
+  .lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .lightbox-pan-hint { display: none; }
+  body.lightbox-open { overflow: hidden; }
+  @media (max-width: 620px) {
+    .lightbox {
+      display: block;
+      padding: 0;
+      overflow: hidden;
+      background: #0e0c0a;
+    }
+    .lightbox-viewport {
+      position: absolute;
+      inset: 52px 0 0;
+      display: block;
+      overflow-x: auto;
+      overflow-y: hidden;
+      cursor: grab;
+      overscroll-behavior: contain;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+    }
+    .lightbox img {
+      display: block;
+      width: auto;
+      max-width: none;
+      height: calc(100vh - 52px);
+      height: calc(100dvh - 52px);
+      max-height: none;
+      border-radius: 0;
+      box-shadow: none;
+      scroll-snap-align: center;
+    }
+    .lightbox-close {
+      top: .6rem;
+      right: .6rem;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+    }
+    .lightbox-pan-hint {
+      position: absolute;
+      left: 50%;
+      bottom: .75rem;
+      z-index: 11;
+      display: block;
+      transform: translateX(-50%);
+      padding: .3rem .55rem;
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--fg);
+      font: 600 12px/1.2 ui-sans-serif, system-ui, sans-serif;
+      white-space: nowrap;
+    }
   }
 </style>
 </head>
@@ -140,160 +275,109 @@
 
 <header>
   <p class="mark"><a href="../"><img src="../wantzel.svg" width="28" height="28" alt="Wantzel"></a>Wantzel AI Studio</p>
-  <h1>Fleets of agents that keep working.</h1>
-  <p class="lede">Run hundreds of coding agents at once, each in its own lane. Restart the
-  studio, close the browser, lose the connection: the agents keep working, and the studio
-  picks every one of them up again. When one stalls it is restarted; when a model is
-  rate-limited, the work moves to another.</p>
-  <p class="lede">And you work in the same files, with the same tools. Every action you take
-  by hand — read, write, build, run, debug — an agent can take too, and the compiler's exact
-  message reaches both of you.</p>
+  <h1>Run and supervise coding agents in one workspace.</h1>
+  <p class="lede">Launch agents, see what each is doing and step in when needed. Their work
+  continues when you close the browser or restart the studio.</p>
+  <p class="lede">Agents use the same files, tickets, compiler and debugger you do. They can
+  build, run and correct code without moving results between tools.</p>
 
-  <p class="hook-cta"><a href="../">The compiler is free and open source</a>
-     <span class="sep">·</span> <a href="mailto:floris@wantzel.com">floris@wantzel.com</a></p>
-  <p class="price-note">Studio is the paid product. The language and compiler underneath it
-  stay MIT-licensed, always.</p>
+  <p class="price-note">Studio is the paid product. The language and the
+  <a href="../">Wantzel compiler</a> remain open source under the MIT license.</p>
 
   <figure>
     <a class="zoom" href="img/1-editor.png"><img src="img/1-editor.png" alt="Wantzel AI Studio in the browser: mcpserver.wz open in the editor with its tools block of two one-line tool declarations, add and greet, the explorer beside it and 'build ok' in the status bar."></a>
-    <figcaption>An MCP server in the editor: two tools, one line each in a <code>tools</code>
-    block, and the compiler writes the rest. The status bar is the compiler's own report,
-    not a mock-up.</figcaption>
+    <figcaption>A two-tool MCP server. The compiler generates the schema, argument handling
+    and dispatch.</figcaption>
   </figure>
 </header>
 
 <main>
 
-<h2>Features</h2>
+<h2>What it does</h2>
 
 <ul class="today">
-  <li><b>Hundreds of agents at once</b> — up to 400 in one studio, each in its own lane with
-      its own output, on ordinary hardware. Tested with 400 agent processes at the same time:
-      every one finishes, none sees another's work, and the studio keeps answering.</li>
-  <li><b>Agents that survive a restart</b> — update or restart the studio, close the browser,
-      lose the network: a running agent keeps working, and the studio picks it up again —
-      the same process, its output followed from where it was. So does the program you
-      started with Run.</li>
-  <li><b>Automatic recovery</b> — an agent that stalls or fails is restarted, up to three
-      times, 5, 15 and 45 seconds apart. A rate limit or an outage at one model moves the
-      work to the next.</li>
-  <li><b>Agents that ask instead of guess</b> — when an agent needs a decision, it puts the
-      question on your attention list and waits. Answer when you are ready, also after a
-      restart; the answer goes straight to that agent.</li>
-  <li><b>No two agents on the same work</b> — a ticket or a file an agent is working on is
-      claimed for it, so the next agent takes something else.</li>
-  <li><b>Agents that hand out work</b> — an agent can start helpers of its own, three levels
-      deep, and every one of them shows up in the fleet view.</li>
-  <li><b>A fleet view</b> — how many run, what each is doing and what it used, and a launch
-      button per role.</li>
-  <li><b>Integrated MCP server</b> — every manual action is a tool an agent can call. Read,
-      write, browse, compile, run. No plugin, no bridge, no configuration.</li>
-  <li><b>Agents that fix their own mistakes</b> — <code>build</code> and <code>run</code> are
-      tools, so the agent gets the compiler's exact message and corrects itself. You ask for
-      a working program, not a draft.</li>
-  <li><b>An extremely short write-compile-feedback cycle</b> — 2 ms per compile, so being
-      wrong fifty times costs a tenth of a second. Sixteen-way parallel it is 400 full
-      compiles in 0.15 s — the toolchain is never the thing you wait for.</li>
-  <li><b>Language helpers that cut the iterations</b> — the agent looks up a topic, searches
-      for the one line that matters, or pulls a proven example instead of guessing. Measured
-      over ten tasks: a median of 5 compile attempts against 12 without, 5 against 57 at
-      worst, and about half the wall-clock time.</li>
-  <li><b>Integrated ticket system</b> — your tickets are a panel. Hand one to an agent and it
-      reads the ticket, writes the code, compiles it, and writes back into the work log.</li>
-  <li><b>Work you can watch and take over</b> — a tool writes a file and the window updates.
-      No diff at the end, no sandbox you cannot see into.</li>
-  <li><b>Your login, your machine</b> — the studio starts the agent you already have. No API
-      key, no per-token bill, no code sent to a service you did not pick.</li>
-  <li><b>No lock-in to one AI vendor</b> — more than one coding model from the start, so a
-      service going away overnight does not stop your work.</li>
-  <li><b>One server, any browser</b> &mdash; a single Linux binary; on your own machine (on Windows,
-      under WSL2), or on a shared server. Open the URL and work.</li>
-  <li><b>Signed in, on every door</b> — a password or OAuth; the browser, the REST API and
-      MCP check the same session, and an agent the studio starts gets its own token that ends
-      with it. Signing out never stops an agent.</li>
-  <li><b>Code from a comment</b> — write what a line should do; the proposal appears only
-      once it compiles. Ghost text while you type, compiled first as well.</li>
-  <li><b>Refactoring in checked steps</b> — one named change at a time, compiled and run
-      against the original behaviour before it lands, each step one undo.</li>
-  <li><b>Documentation that learns</b> — every session feeds the language documentation the
-      next one reads, so the same mistake is made once.</li>
+  <li><b>Manage hundreds of agents</b> — run and monitor up to 400 agent processes in one
+    studio. See each role, task, model and result from the fleet view.</li>
+  <li><b>Keep work running</b> — agents continue when the browser closes. After a restart,
+    the studio reconnects to the same processes. Stalled work retries automatically.</li>
+  <li><b>Share one set of tools</b> — agents can read, write, browse, compile, run and debug
+    through the integrated MCP server. Compiler errors go straight back to the agent.</li>
+  <li><b>Coordinate the work</b> — assign tickets, prevent two agents taking the same task,
+    answer questions from one attention list and let agents start helpers.</li>
+  <li><b>Watch and take over</b> — edits appear in the files you have open. Read the work as
+    it happens, use the same debugger and take control at any time.</li>
+      <li><b>Ready in any browser</b> — open Studio and start working. There is nothing to
+        install, configure or maintain, and Wantzel programs compile and run without delay.</li>
 </ul>
 
 
-<h2>Working together</h2>
+<h2>See it in use</h2>
 
 <div class="shots">
   <section>
     <h3>A fleet at a glance</h3>
-    <p>Every running agent in one table: its role, engine and model, the ticket it has and
-    what it is doing, with time and tokens. Launch more by role, or hand the fleet a plan.</p>
-    <figure><a class="zoom" href="img/12-fleet.png"><img src="img/12-fleet.png" alt="The Fleet panel with 20 agents, all running: eight builders each on a ticket such as 'A word-count tool' and 'Add a stats tool', and more agents on review and test tasks, each with its engine and elapsed time."></a></figure>
+    <p>See each agent's role, model, ticket, current task, elapsed time and token use. Start
+    more agents by role or give the fleet a plan.</p>
+    <figure><a class="zoom" href="img/12-fleet.png"><img loading="lazy" decoding="async" src="img/12-fleet.png" alt="The Fleet panel with 20 agents, all running: eight builders each on a ticket such as 'A word-count tool' and 'Add a stats tool', and more agents on review and test tasks, each with its engine and elapsed time."></a></figure>
   </section>
   <section>
     <h3>Where every agent is</h3>
-    <p>The agent map shows each agent with its state -- running, waiting on a human, failed
-    or done -- and which agent started which. After a restart of the studio the same map
-    comes back, because the agents never stopped.</p>
-    <figure><a class="zoom" href="img/13-agentmap.png"><img src="img/13-agentmap.png" alt="The Agent Map panel: filters for all 20, running 20, waiting on a human 0, failed 0, done 0, and a row per agent with its profile, ticket, task and engine."></a></figure>
+    <p>The map shows which agents are running, waiting, failed or done, and which agent
+    started each helper. It returns after a studio restart.</p>
+    <figure><a class="zoom" href="img/13-agentmap.png"><img loading="lazy" decoding="async" src="img/13-agentmap.png" alt="The Agent Map panel: filters for all 20, running 20, waiting on a human 0, failed 0, done 0, and a row per agent with its profile, ticket, task and engine."></a></figure>
   </section>
   <section>
     <h3>An agent asks; you answer</h3>
-    <p>An agent that needs a decision does not guess. The question appears in a corner with
-    its choices; the other agents keep running, and your answer goes straight to the one
-    that asked -- also when you answer after a restart.</p>
-    <figure><a class="zoom" href="img/14-question.png"><img src="img/14-question.png" alt="The agent panel with a list of running agents; in the corner a card from one agent: 'The stats summary line: show the mean or the median?' with the buttons mean and median."></a></figure>
+    <p>Questions appear with their available choices. Other agents continue while this one
+    waits. You can answer now or after a restart.</p>
+    <figure><a class="zoom" href="img/14-question.png"><img loading="lazy" decoding="async" src="img/14-question.png" alt="The agent panel with a list of running agents; in the corner a card from one agent: 'The stats summary line: show the mean or the median?' with the buttons mean and median."></a></figure>
   </section>
   <section>
-    <h3>You set a breakpoint; the program stops where you said</h3>
-    <p>Click a line to set a breakpoint, start debugging, step over, into and out. The
-    variables are the program's real memory: globals, arrays, records, unfolded on demand.</p>
-    <figure><a class="zoom" href="img/2-debugger.png"><img src="img/2-debugger.png" alt="The debugger paused in primes.wz after a step from the breakpoint on line 20: the step bar at the top, the current line 21 marked, and the Variables view with the locals v = 200000, k and m."></a></figure>
+    <h3>Debug the running program</h3>
+    <p>Click a line to set a breakpoint, then step over, into or out. Inspect globals,
+    arrays and records while the program is paused.</p>
+    <figure><a class="zoom" href="img/2-debugger.png"><img loading="lazy" decoding="async" src="img/2-debugger.png" alt="The debugger paused in primes.wz after a step from the breakpoint on line 20: the step bar at the top, the current line 21 marked, and the Variables view with the locals v = 200000, k and m."></a></figure>
   </section>
   <section>
-    <h3>A mistake is explained where you made it</h3>
-    <p>Errors appear while you type, before any build. The explanation comes from the same
-    language help an agent reads, with a fix that compiles -- apply it yourself, or hand the
-    error, its context and that help to an agent.</p>
-    <figure><a class="zoom" href="img/3-explain.png"><img src="img/3-explain.png" alt="A typo on line 50 of structures.wz marked in the margin; the explanation above it with the compiler message 'undeclared identifier: totlk', the relevant help sections and a table of causes and fixes."></a></figure>
+    <h3>Fix an error beside the code</h3>
+    <p>Compiler errors appear while you type. Open one for an explanation and a tested fix,
+    or give the error and its context to an agent.</p>
+    <figure><a class="zoom" href="img/3-explain.png"><img loading="lazy" decoding="async" src="img/3-explain.png" alt="A typo on line 50 of structures.wz marked in the margin; the explanation above it with the compiler message 'undeclared identifier: totlk', the relevant help sections and a table of causes and fixes."></a></figure>
   </section>
   <section>
-    <h3>An agent works in the same files you do</h3>
-    <p>Pick the engine, ask in plain words, and watch the agent build, run and correct
-    itself with the same tools you use by hand. Nothing happens in a window you cannot see.</p>
-    <figure><a class="zoom" href="img/4-agents.png"><img src="img/4-agents.png" alt="The agent panel beside the editor: a list of twenty running agents, one of them open with the ticket it was given and the rules it starts with, and the engine and model in the status line."></a></figure>
+    <h3>Watch an agent work</h3>
+    <p>Ask in plain words and watch the agent edit, build, run and correct the files in your
+    workspace. Take over at any time.</p>
+    <figure><a class="zoom" href="img/4-agents.png"><img loading="lazy" decoding="async" src="img/4-agents.png" alt="The agent panel beside the editor: a list of twenty running agents, one of them open with the ticket it was given and the rules it starts with, and the engine and model in the status line."></a></figure>
   </section>
   <section>
-    <h3>Or just describe what you want</h3>
-    <p>For people who do not program: type what you want in an empty file and press
-    Ctrl+Enter. An agent writes the program, the studio compiles it, lets the agent repair
-    what does not compile, and runs it; only a working program lands in the file. Add a line
-    and press Ctrl+Enter again to steer.</p>
-    <figure><a class="zoom" href="img/5-describe.png"><img src="img/5-describe.png" alt="table.wz after Ctrl+Enter: the description has become a working program that prints the times table of 10, and the console below shows its output from 1 x 10 = 10 to 10 x 10 = 100."></a></figure>
+    <h3>Describe a program</h3>
+    <p>Type what you want in an empty file and press Ctrl+Enter. An agent writes, compiles,
+    repairs and runs the program. Only code that compiles is written to the file.</p>
+    <figure><a class="zoom" href="img/5-describe.png"><img loading="lazy" decoding="async" src="img/5-describe.png" alt="table.wz after Ctrl+Enter: the description has become a working program that prints the times table of 10, and the console below shows its output from 1 x 10 = 10 to 10 x 10 = 100."></a></figure>
   </section>
   <section>
-    <h3>Profiles give every agent a clear job</h3>
-    <p>A profile is a role in one sentence plus the instructions an agent starts with:
-    builder, tester, reviewer, refactorer, documentation and UI/UX. Switch them on, edit
-    them, or write your own.</p>
-    <figure><a class="zoom" href="img/6-profiles.png"><img src="img/6-profiles.png" alt="The profiles list with builder, tester, reviewer, refactorer, documentation and UI/UX frontend; builder is open with its one-sentence role and the primer it starts with."></a></figure>
+    <h3>Give each agent a role</h3>
+    <p>Profiles combine a role with its starting instructions. Use the included builder,
+    tester and reviewer profiles, edit them or create your own.</p>
+    <figure><a class="zoom" href="img/6-profiles.png"><img loading="lazy" decoding="async" src="img/6-profiles.png" alt="The profiles list with builder, tester, reviewer, refactorer, documentation and UI/UX frontend; builder is open with its one-sentence role and the primer it starts with."></a></figure>
   </section>
   <section>
-    <h3>Browse and edit the tables of your own app</h3>
-    <p>Point the table browser at any app that offers its tables over MCP. Filter, page
-    through the rows, and edit a field where the app allows it -- through the app's own
-    tools, so its validation still applies.</p>
-    <figure><a class="zoom" href="img/7-database.png"><img src="img/7-database.png" alt="The Database panel connected to a small demo app with three tables; the books table open as a grid of 24 rows, and the first row's fields beside it with the editable ones marked."></a></figure>
+    <h3>Browse application data</h3>
+    <p>Connect to an application that exposes tables over MCP. Filter rows and edit allowed
+    fields through the application's own validation.</p>
+    <figure><a class="zoom" href="img/7-database.png"><img loading="lazy" decoding="async" src="img/7-database.png" alt="The Database panel connected to a small demo app with three tables; the books table open as a grid of 24 rows, and the first row's fields beside it with the editable ones marked."></a></figure>
   </section>
   <section>
-    <h3>Tickets are a panel, and an agent can take one</h3>
-    <p>Search, read and change the status of your tickets beside the code. Give one to an
-    agent: it reads the ticket, writes the code, compiles it and logs what it did.</p>
-    <figure><a class="zoom" href="img/8-tickets.png"><img src="img/8-tickets.png" alt="The ticket panel: a quick-add line, a search field and eight tickets with their number, priority and title; T-0008 'A word-count tool' is open below with Open as Document and Give to Agent."></a></figure>
+    <h3>Work from a ticket</h3>
+    <p>Search, read and update tickets beside the code. Give one to an agent and it writes,
+    compiles and records the result in the work log.</p>
+    <figure><a class="zoom" href="img/8-tickets.png"><img loading="lazy" decoding="async" src="img/8-tickets.png" alt="The ticket panel: a quick-add line, a search field and eight tickets with their number, priority and title; T-0008 'A word-count tool' is open below with Open as Document and Give to Agent."></a></figure>
   </section>
   <section>
-    <h3>History, one line per change</h3>
-    <p>The project's commits as a graph: message, hash, author and time, newest on top.</p>
-    <figure><a class="zoom" href="img/9-history.png"><img src="img/9-history.png" alt="The history panel listing six commits with message, short hash, author and date."></a></figure>
+    <h3>Review project history</h3>
+    <p>Browse commits as a graph with each message, hash, author and time.</p>
+    <figure><a class="zoom" href="img/9-history.png"><img loading="lazy" decoding="async" src="img/9-history.png" alt="The history panel listing six commits with message, short hash, author and date."></a></figure>
   </section>
 </div>
 
@@ -311,20 +395,43 @@
 </footer>
 
 </div>
-<div class="lightbox" hidden><img alt=""></div>
+<div class="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" hidden>
+  <div class="lightbox-viewport"><img alt=""></div>
+  <span class="lightbox-pan-hint">Swipe to pan</span>
+</div>
+<button class="lightbox-close" type="button" aria-label="Close image" title="Close" hidden>&times;</button>
 <script>
 (function () {
-  var box = document.querySelector(".lightbox"), big = box.querySelector("img");
-  function close() { box.hidden = true; big.removeAttribute("src"); }
+  var box = document.querySelector(".lightbox"), viewport = box.querySelector(".lightbox-viewport");
+  var big = viewport.querySelector("img");
+  var closeButton = document.querySelector(".lightbox-close"), opener = null;
+  function positionImage() {
+    viewport.scrollLeft = 0;
+  }
+  function close() {
+    box.hidden = true;
+    closeButton.hidden = true;
+    document.body.classList.remove("lightbox-open");
+    big.removeAttribute("src");
+    if (opener) opener.focus();
+    opener = null;
+  }
   document.querySelectorAll("a.zoom").forEach(function (a) {
     a.addEventListener("click", function (e) {
       e.preventDefault();
+      opener = a;
+      big.onload = positionImage;
       big.src = a.getAttribute("href");
       big.alt = a.querySelector("img").alt;
       box.hidden = false;
+      closeButton.hidden = false;
+      document.body.classList.add("lightbox-open");
+      closeButton.focus();
+      window.requestAnimationFrame(positionImage);
     });
   });
-  box.addEventListener("click", close);
+  closeButton.addEventListener("click", close);
+  viewport.addEventListener("click", function (e) { if (e.target === viewport) close(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
 })();
 </script>
