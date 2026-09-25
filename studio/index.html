@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wantzel AI Studio</title>
-<meta name="description" content="The editor is where agents work, not a window you paste their output into. Wantzel AI Studio is the paid product built on the Wantzel compiler: an integrated MCP server, a compile loop measured in milliseconds, and no lock-in to one AI vendor.">
+<meta name="description" content="Wantzel AI Studio runs fleets of coding agents that keep working: hundreds at once, each in its own lane, picked up again after a restart and restarted when they stall. The paid product built on the Wantzel compiler: an integrated MCP server, a compile loop measured in milliseconds, and no lock-in to one AI vendor.">
 <style>
   /* Everything is sized in rem, so this one line sets the scale of the whole page,
      relative to the reader's own browser setting. */
@@ -65,6 +65,7 @@
     color: var(--muted);
     margin: 0;
   }
+  .lede + .lede { margin-top: .9rem; }
   .hook-cta {
     font: 600 .95rem ui-sans-serif, system-ui, sans-serif;
     margin: 1.8rem 0 0;
@@ -139,11 +140,14 @@
 
 <header>
   <p class="mark"><a href="../"><img src="../wantzel.svg" width="28" height="28" alt="Wantzel"></a>Wantzel AI Studio</p>
-  <h1>A studio where people and agents build together.</h1>
-  <p class="lede">You and your agents work in the same files, with the same tools. Every
-  action you take by hand — read, write, build, run, debug — an agent can take too, and
-  the compiler's exact message reaches both of you, so either one can fix what the other
-  started.</p>
+  <h1>Fleets of agents that keep working.</h1>
+  <p class="lede">Run hundreds of coding agents at once, each in its own lane. Restart the
+  studio, close the browser, lose the connection: the agents keep working, and the studio
+  picks every one of them up again. When one stalls it is restarted; when a model is
+  rate-limited, the work moves to another.</p>
+  <p class="lede">And you work in the same files, with the same tools. Every action you take
+  by hand — read, write, build, run, debug — an agent can take too, and the compiler's exact
+  message reaches both of you.</p>
 
   <p class="hook-cta"><a href="../">The compiler is free and open source</a>
      <span class="sep">·</span> <a href="mailto:floris@wantzel.com">floris@wantzel.com</a></p>
@@ -151,8 +155,8 @@
   stay MIT-licensed, always.</p>
 
   <figure>
-    <a class="zoom" href="img/1-editor.png"><img src="img/1-editor.png" alt="Wantzel AI Studio in the browser: mcptools.wz open in the editor, its tools block of three one-line tool declarations in view, the explorer beside it and 'build ok' in the status bar."></a>
-    <figcaption>An MCP server in the editor: three tools, one line each in a <code>tools</code>
+    <a class="zoom" href="img/1-editor.png"><img src="img/1-editor.png" alt="Wantzel AI Studio in the browser: mcpserver.wz open in the editor with its tools block of two one-line tool declarations, add and greet, the explorer beside it and 'build ok' in the status bar."></a>
+    <figcaption>An MCP server in the editor: two tools, one line each in a <code>tools</code>
     block, and the compiler writes the rest. The status bar is the compiler's own report,
     not a mock-up.</figcaption>
   </figure>
@@ -163,6 +167,25 @@
 <h2>Features</h2>
 
 <ul class="today">
+  <li><b>Hundreds of agents at once</b> — up to 400 in one studio, each in its own lane with
+      its own output, on ordinary hardware. Tested with 400 agent processes at the same time:
+      every one finishes, none sees another's work, and the studio keeps answering.</li>
+  <li><b>Agents that survive a restart</b> — update or restart the studio, close the browser,
+      lose the network: a running agent keeps working, and the studio picks it up again —
+      the same process, its output followed from where it was. So does the program you
+      started with Run.</li>
+  <li><b>Automatic recovery</b> — an agent that stalls or fails is restarted, up to three
+      times, 5, 15 and 45 seconds apart. A rate limit or an outage at one model moves the
+      work to the next.</li>
+  <li><b>Agents that ask instead of guess</b> — when an agent needs a decision, it puts the
+      question on your attention list and waits. Answer when you are ready, also after a
+      restart; the answer goes straight to that agent.</li>
+  <li><b>No two agents on the same work</b> — a ticket or a file an agent is working on is
+      claimed for it, so the next agent takes something else.</li>
+  <li><b>Agents that hand out work</b> — an agent can start helpers of its own, three levels
+      deep, and every one of them shows up in the fleet view.</li>
+  <li><b>A fleet view</b> — how many run, what each is doing and what it used, and a launch
+      button per role.</li>
   <li><b>Integrated MCP server</b> — every manual action is a tool an agent can call. Read,
       write, browse, compile, run. No plugin, no bridge, no configuration.</li>
   <li><b>Agents that fix their own mistakes</b> — <code>build</code> and <code>run</code> are
@@ -185,12 +208,13 @@
       service going away overnight does not stop your work.</li>
   <li><b>One server, any browser</b> &mdash; a single Linux binary; on your own machine (on Windows,
       under WSL2), or on a shared server. Open the URL and work.</li>
-  <li><b>A fleet view for many agents</b> — how many run, what each is doing, and a launch
-      button per profile, in one panel.</li>
-  <li><b>Fleets of agents in parallel</b> — on ordinary hardware instead of a VPS per
-      handful.</li>
-  <li><b>Automatic failover between coding models</b> — when one is rate-limited or down,
-      the work moves to the next.</li>
+  <li><b>Signed in, on every door</b> — a password or OAuth; the browser, the REST API and
+      MCP check the same session, and an agent the studio starts gets its own token that ends
+      with it. Signing out never stops an agent.</li>
+  <li><b>Code from a comment</b> — write what a line should do; the proposal appears only
+      once it compiles. Ghost text while you type, compiled first as well.</li>
+  <li><b>Refactoring in checked steps</b> — one named change at a time, compiled and run
+      against the original behaviour before it lands, each step one undo.</li>
   <li><b>Documentation that learns</b> — every session feeds the language documentation the
       next one reads, so the same mistake is made once.</li>
 </ul>
@@ -200,10 +224,30 @@
 
 <div class="shots">
   <section>
+    <h3>A fleet at a glance</h3>
+    <p>Every running agent in one table: its role, engine and model, the ticket it has and
+    what it is doing, with time and tokens. Launch more by role, or hand the fleet a plan.</p>
+    <figure><a class="zoom" href="img/12-fleet.png"><img src="img/12-fleet.png" alt="The Fleet panel with 20 agents, all running: eight builders each on a ticket such as 'A word-count tool' and 'Add a stats tool', and more agents on review and test tasks, each with its engine and elapsed time."></a></figure>
+  </section>
+  <section>
+    <h3>Where every agent is</h3>
+    <p>The agent map shows each agent with its state -- running, waiting on a human, failed
+    or done -- and which agent started which. After a restart of the studio the same map
+    comes back, because the agents never stopped.</p>
+    <figure><a class="zoom" href="img/13-agentmap.png"><img src="img/13-agentmap.png" alt="The Agent Map panel: filters for all 20, running 20, waiting on a human 0, failed 0, done 0, and a row per agent with its profile, ticket, task and engine."></a></figure>
+  </section>
+  <section>
+    <h3>An agent asks; you answer</h3>
+    <p>An agent that needs a decision does not guess. The question appears in a corner with
+    its choices; the other agents keep running, and your answer goes straight to the one
+    that asked -- also when you answer after a restart.</p>
+    <figure><a class="zoom" href="img/14-question.png"><img src="img/14-question.png" alt="The agent panel with a list of running agents; in the corner a card from one agent: 'The stats summary line: show the mean or the median?' with the buttons mean and median."></a></figure>
+  </section>
+  <section>
     <h3>You set a breakpoint; the program stops where you said</h3>
     <p>Click a line to set a breakpoint, start debugging, step over, into and out. The
     variables are the program's real memory: globals, arrays, records, unfolded on demand.</p>
-    <figure><a class="zoom" href="img/2-debugger.png"><img src="img/2-debugger.png" alt="The debugger paused in primes.wz after a step from the breakpoint on line 20: the step bar at the top, the call stack putn above main, and the Variables view with locals and globals such as count = 17984 and the composite array."></a></figure>
+    <figure><a class="zoom" href="img/2-debugger.png"><img src="img/2-debugger.png" alt="The debugger paused in primes.wz after a step from the breakpoint on line 20: the step bar at the top, the current line 21 marked, and the Variables view with the locals v = 200000, k and m."></a></figure>
   </section>
   <section>
     <h3>A mistake is explained where you made it</h3>
@@ -216,21 +260,22 @@
     <h3>An agent works in the same files you do</h3>
     <p>Pick the engine, ask in plain words, and watch the agent build, run and correct
     itself with the same tools you use by hand. Nothing happens in a window you cannot see.</p>
-    <figure><a class="zoom" href="img/4-agents.png"><img src="img/4-agents.png" alt="The agent panel beside the editor: an engine choice, the conversation area, and the input line with a Send button."></a></figure>
+    <figure><a class="zoom" href="img/4-agents.png"><img src="img/4-agents.png" alt="The agent panel beside the editor: a list of twenty running agents, one of them open with the ticket it was given and the rules it starts with, and the engine and model in the status line."></a></figure>
   </section>
   <section>
     <h3>Or just describe what you want</h3>
-    <p>For people who do not program: describe the program in plain language. The studio
-    has an agent write it, compiles it, lets the agent repair what does not compile, and
-    runs it -- and you steer in plain language too.</p>
-    <figure><a class="zoom" href="img/5-build-something.png"><img src="img/5-build-something.png" alt="The Build something screen: one large text field for a plain-language description, an agent choice and a Build it button."></a></figure>
+    <p>For people who do not program: type what you want in an empty file and press
+    Ctrl+Enter. An agent writes the program, the studio compiles it, lets the agent repair
+    what does not compile, and runs it; only a working program lands in the file. Add a line
+    and press Ctrl+Enter again to steer.</p>
+    <figure><a class="zoom" href="img/5-describe.png"><img src="img/5-describe.png" alt="table.wz after Ctrl+Enter: the description has become a working program that prints the times table of 10, and the console below shows its output from 1 x 10 = 10 to 10 x 10 = 100."></a></figure>
   </section>
   <section>
     <h3>Profiles give every agent a clear job</h3>
     <p>A profile is a role in one sentence plus the instructions an agent starts with:
-    builder, tester, reviewer, and two dozen more. Switch them on, edit them, or write
-    your own.</p>
-    <figure><a class="zoom" href="img/6-profiles.png"><img src="img/6-profiles.png" alt="The profiles list grouped into software, general and care roles, with the builder profile selected."></a></figure>
+    builder, tester, reviewer, refactorer, documentation and UI/UX. Switch them on, edit
+    them, or write your own.</p>
+    <figure><a class="zoom" href="img/6-profiles.png"><img src="img/6-profiles.png" alt="The profiles list with builder, tester, reviewer, refactorer, documentation and UI/UX frontend; builder is open with its one-sentence role and the primer it starts with."></a></figure>
   </section>
   <section>
     <h3>Browse and edit the tables of your own app</h3>
@@ -243,24 +288,12 @@
     <h3>Tickets are a panel, and an agent can take one</h3>
     <p>Search, read and change the status of your tickets beside the code. Give one to an
     agent: it reads the ticket, writes the code, compiles it and logs what it did.</p>
-    <figure><a class="zoom" href="img/8-tickets.png"><img src="img/8-tickets.png" alt="The ticket panel: seven tickets with their number, priority and title, one of them open below with its description and the buttons Open as Document and Give to Agent."></a></figure>
+    <figure><a class="zoom" href="img/8-tickets.png"><img src="img/8-tickets.png" alt="The ticket panel: a quick-add line, a search field and eight tickets with their number, priority and title; T-0008 'A word-count tool' is open below with Open as Document and Give to Agent."></a></figure>
   </section>
   <section>
     <h3>History, one line per change</h3>
     <p>The project's commits as a graph: message, hash, author and time, newest on top.</p>
-    <figure><a class="zoom" href="img/9-history.png"><img src="img/9-history.png" alt="The history panel listing nine commits with message, short hash, author and date."></a></figure>
-  </section>
-  <section>
-    <h3>Two panes for files, keyboard first</h3>
-    <p>A commander in the sidebar: two folders side by side, and view, edit, copy, move,
-    make a folder and delete on the function keys.</p>
-    <figure><a class="zoom" href="img/10-commander.png"><img src="img/10-commander.png" alt="The commander: two file panes side by side on the project folder, and a row of function-key actions below them."></a></figure>
-  </section>
-  <section>
-    <h3>The language help is built in</h3>
-    <p>The same documentation the agents read, in a panel: topics, pitfalls, examples and
-    shortcuts, searchable, with code you can copy.</p>
-    <figure><a class="zoom" href="img/11-help.png"><img src="img/11-help.png" alt="The help panel with a search field, buttons for pitfalls, ecosystem, examples and shortcuts, the list of topics, and the tour with a code sample."></a></figure>
+    <figure><a class="zoom" href="img/9-history.png"><img src="img/9-history.png" alt="The history panel listing six commits with message, short hash, author and date."></a></figure>
   </section>
 </div>
 

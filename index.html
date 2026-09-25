@@ -233,11 +233,12 @@
 
 <h2>Try it</h2>
 
-<figure class="quick" aria-label="Three commands: clone the repository, run build.sh which needs a C compiler exactly once, then compile and run a program.">
-  <pre><code>git clone https://github.com/wantzel/wantzel  <span class="cm"># get it</span>
-cd wantzel &amp;&amp; ./build.sh                      <span class="cm"># build, once</span>
-./bin/wantzel hello.wz hello &amp;&amp; ./hello       <span class="cm"># compile and run</span></code></pre>
-  <figcaption>That is the whole installation. There is no second step.</figcaption>
+<figure class="quick" aria-label="Four lines: download the compiler, which is one file with the standard library inside, make it executable, write a hello world, then compile and run it.">
+  <pre><code>curl -fsSLo wantzel https://github.com/wantzel/wantzel/releases/latest/download/wantzel-linux-x86_64
+chmod +x wantzel                                  <span class="cm"># one file: compiler and library</span>
+printf '%s\n' 'import io; begin io.puts(STDOUT, "hello\n"); end.' &gt; hello.wz
+./wantzel hello.wz hello &amp;&amp; ./hello               <span class="cm"># compile and run</span></code></pre>
+  <figcaption>That is the whole installation: one file, nothing to build.</figcaption>
 </figure>
 
 
